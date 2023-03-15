@@ -180,8 +180,8 @@ def train(tr_set, dv_set, model, config, device):
     n_epochs = config['n_epochs']
 
     # Setup optimizer
-    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
-    # optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.9)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.5)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     min_loss = config['min_loss']
@@ -203,14 +203,14 @@ def train(tr_set, dv_set, model, config, device):
             avg_loss += loss_loss.detach().cpu().item()
         scheduler.step()
         avg_loss /= len(tr_set.dataset)
-        print(f'[{epoch + 1}/{n_epochs}], Loss={avg_loss}', end='\r')
+        print(f'Training[{epoch + 1}/{n_epochs}], Loss={avg_loss}', end='\r')
 
         # After each epoch, test your model on the validation (development) set.
         dev_loss = dev(dv_set, model, device)
         if dev_loss < min_loss:
             # Save model if your model improved
             min_loss = dev_loss
-            print(f'Saving model (epoch = {epoch + 1}, loss = {min_loss})', end='\r')
+            print(f'Saving model (epoch = {epoch + 1}, loss = {min_loss})')
             torch.save(model.state_dict(), save_path)  # Save model to specified path
             early_stop_cnt = 0
         else:
