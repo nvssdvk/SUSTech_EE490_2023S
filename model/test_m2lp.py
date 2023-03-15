@@ -6,7 +6,6 @@ from torch.utils.data import Dataset, DataLoader
 # For data preprocess
 import pandas as pd
 import numpy as np
-import csv
 import os
 
 # For plotting
@@ -106,6 +105,7 @@ class M2LPDataset(Dataset):
         self.dim = self.data.shape[1]
         print(
             f'Finished reading the {mode} set of Dataset ({len(self.data)} samples found, dim = {self.dim})')
+        del data
 
     def __len__(self):
         return len(self.data)
@@ -128,7 +128,7 @@ def prep_dataloader(data_dir, mode, batch_size: int, n_jobs=0):
 
 class M2LP(nn.Module):
 
-    def __init__(self, input_dim, first_dim, block_num, alpha):
+    def __init__(self, input_dim=1, first_dim=1, block_num=1, alpha=0.01):
         super(M2LP, self).__init__()
 
         self.prep_layer = nn.Sequential(
@@ -179,9 +179,8 @@ class M2LP(nn.Module):
 def train(tr_set, dv_set, model, config, device):
     n_epochs = config['n_epochs']
 
-    # Setup optimizer
-    # optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
-    optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
+    # optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.5)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     min_loss = config['min_loss']
@@ -190,20 +189,19 @@ def train(tr_set, dv_set, model, config, device):
     early_stop_cnt = 0
     epoch = 0
     while epoch < n_epochs:
-        avg_loss = 0
+        epoch_loss = 0
         model.train()  # set model to training mode
         for x, y in tr_set:  # iterate through the dataloader
             optimizer.zero_grad()  # set gradient to zero
             x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
             pred = model(x)  # forward pass (compute output)
-            loss_loss = model.cal_loss(pred, y)  # compute loss
-            loss_loss.backward()  # compute gradient (backpropagation)
+            batch_loss = model.cal_loss(pred, y)  # compute loss
+            batch_loss.backward()  # compute gradient (backpropagation)
             optimizer.step()  # update model with optimizer
-            loss_record['train'].append(loss_loss.detach().cpu().item())
-            avg_loss += loss_loss.detach().cpu().item()
+            loss_record['train'].append(batch_loss.detach().cpu().item())
+            epoch_loss += batch_loss.detach().cpu().item()
         scheduler.step()
-        avg_loss /= len(tr_set.dataset)
-        print(f'Training[{epoch + 1}/{n_epochs}], Loss={avg_loss}', end='\r')
+        print(f'Training[{epoch + 1}/{n_epochs}], Loss={epoch_loss / len(tr_set.dataset)}', end='\r')
 
         # After each epoch, test your model on the validation (development) set.
         dev_loss = dev(dv_set, model, device)
@@ -211,7 +209,7 @@ def train(tr_set, dv_set, model, config, device):
             # Save model if your model improved
             min_loss = dev_loss
             print(f'Saving model (epoch = {epoch + 1}, loss = {min_loss})')
-            torch.save(model.state_dict(), save_path)  # Save model to specified path
+            torch.save(model.state_dict(), config['model_path'])  # Save model to specified path
             early_stop_cnt = 0
         else:
             early_stop_cnt += 1
@@ -231,11 +229,10 @@ def dev(dv_set, model, device):
     total_loss = 0
     for x, y in dv_set:  # iterate through the dataloader
         x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
-
         with torch.no_grad():  # disable gradient calculation
             pred = model(x)  # forward pass (compute output)
-            loss_loss = model.cal_loss(pred, y)  # compute loss
-        total_loss += loss_loss.detach().cpu().item() * len(x)  # accumulate loss
+            batch_loss = model.cal_loss(pred, y)  # compute loss
+        total_loss += batch_loss.detach().cpu().item() * len(x)  # accumulate loss
     total_loss /= len(dv_set.dataset)  # compute averaged loss
 
     return total_loss
@@ -255,17 +252,17 @@ def test(tt_set, model, device):
 
 def save_pred(preds, file):
     print('Saving results to {}'.format(file))
-    with open(file, 'w') as fp:
-        writer = csv.writer(fp)
-        writer.writerow(['id', 'tested_positive'])
-        for i, p in enumerate(preds):
-            writer.writerow([i, p])
+    pred_name = ["a", "h", "e", "pred angle"]
+    pred_set = np.zeros([len(preds), 4])
+    temp_csv = pd.read_csv(r"../data/dataset/space.csv", header=0, engine="c").values
+    pred_set[:, 0:3] = temp_csv[:, 1:]
+    pred_set[:, -1] = preds[:, 0, 0]
+    df = pd.DataFrame(columns=pred_name, data=pred_set)
+    df.to_csv(f'../data/dataset/pred_set.csv', encoding='utf-8', index=False)
+    del df
 
 
 if __name__ == "__main__":
-    tr_path = '../data/dataset/tr_set.csv'  # path to training data
-    tt_path = '../data/dataset/tt_set.csv'  # path to testing data
-
     config = {
         # dataset
         'batch_size': 400,
@@ -278,20 +275,19 @@ if __name__ == "__main__":
         'learning_rate': 1e-2,
         # train
         'n_epochs': 1000,
-        'early_stop': 200,
+        'early_stop': 300,
         'min_loss': 1000.,
-
+        # path
+        'model_path': 'models/m2lp_model.pth',
+        'tr_path': '../data/dataset/tr_set.csv',
+        'tt_path': '../data/dataset/tt_set.csv'
     }
-    reg_dim = config['first_dim']
-    next_dim = config['first_dim']
 
-    save_path = 'models/model.pth'  # the path where checkpoint saved
     device = get_device()  # get the current available device ('cpu' or 'cuda')
-    os.makedirs('../data/models', exist_ok=True)  # The trained model will be saved to ./models/
 
-    tr_set = prep_dataloader(tr_path, 'train', config['batch_size'])
-    dv_set = prep_dataloader(tr_path, 'dev', config['batch_size'])
-    tt_set = prep_dataloader(tt_path, 'test', config['batch_size'])
+    tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
+    dv_set = prep_dataloader(config['tr_path'], 'dev', config['batch_size'])
+    tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                  first_dim=config['first_dim']).to(device)  # Construct model and move to device
     model_loss, model_loss_record = train(tr_set, dv_set, model, config, device)
@@ -299,8 +295,8 @@ if __name__ == "__main__":
     plot_learning_curve(model_loss_record, title='m2lp model')
     del model
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                 first_dim=config['first_dim']).to(device)
-    ckpt = torch.load(save_path, map_location='cpu')  # Load your best model
+                 first_dim=config['first_dim']).to(device)  # Construct model and move to device
+    ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best model
     model.load_state_dict(ckpt)
     plot_pred(dv_set, model, device)
     # %%

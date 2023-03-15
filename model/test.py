@@ -1,9 +1,8 @@
-
 import numpy as np
+import pandas as pd
 
 if __name__ == "__main__":
-    a = np.random.randint(0 ,9 ,[4 ,3])
-    a_min = np.min(a, axis=0)
-    a_max = np.max(a, axis=0)
-
-    b = (a - a_min) / (a_max - a_min)
+    a = np.random.randint(20, size=(15, 1, 1))
+    b = np.zeros([15, 2])
+    c = a[:,0,0]
+    b[:, -1] = a[:,0,0]
