@@ -11,7 +11,7 @@ line_break = '\n'
 
 
 def read_data():
-    file_path = "../data/lhs/samples.csv"
+    file_path = "../Data/lhs/samples.csv"
     df = pd.read_csv(file_path, header=None, sep=',')
     df = np.asarray(df)
     num = len(df)
@@ -59,7 +59,7 @@ def delete_result(modeler):
 
 
 if __name__ == '__main__':
-    # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\data\RA_23_03_09\cell.cst")
+    # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\Data\RA_23_03_09\UnitCell.cst")
     my_project_path = r"../cst/cell.cst"
 
     num, ids, a, h, e = read_data()
@@ -96,7 +96,7 @@ if __name__ == '__main__':
             df_data[df_i, 2] = s11_phase[df_i]
 
         df = pd.DataFrame(columns=df_name, data=df_data)
-        df.to_csv(f'../data/s11/s11_{i}.csv', encoding='utf-8', index=False)
+        df.to_csv(f'../Data/s11/s11_{i}.csv', encoding='utf-8', index=False)
 
         # delete_result(my_modeler)
         time_loop_end = time.time()

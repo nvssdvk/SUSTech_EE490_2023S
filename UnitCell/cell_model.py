@@ -6,9 +6,8 @@ import cst.interface
 line_break = '\n'
 
 if __name__ == '__main__':
-    my_project_name = f'cell.cst'
-    my_project_path = os.path.abspath(
-        f'../cst/{my_project_name}')
+    my_project_name = f'UnitCell.cst'
+    my_project_path = os.path.abspath(f'../cst/{my_project_name}')
     my_de = cst.interface.DesignEnvironment()
     my_mws = my_de.new_mws()
     my_mws.save(my_project_path)
@@ -82,10 +81,10 @@ if __name__ == '__main__':
         'SetParameterDescription "phi", "spherical angle of incident plane wave"',
 
         'With Boundary',
-        '     .Xmin "unit cell"',
-        '     .Xmax "unit cell"',
-        '     .Ymin "unit cell"',
-        '     .Ymax "unit cell"',
+        '     .Xmin "unit UnitCell"',
+        '     .Xmax "unit UnitCell"',
+        '     .Ymin "unit UnitCell"',
+        '     .Ymax "unit UnitCell"',
         '     .Zmin "expanded open"',
         '     .Zmax "expanded open"',
         '     .Xsymmetry "none"',
@@ -299,11 +298,11 @@ if __name__ == '__main__':
     vbacode = 'Pick.PickFaceFromPoint "component1:solid4", "0", "0", "h"'
     add_to_history(header, vbacode)
 
-    header = "define loft: component1:cell"
+    header = "define loft: component1:UnitCell"
     vbacode = [
         'With Loft ',
         '     .Reset ',
-        '     .Name "cell" ',
+        '     .Name "UnitCell" ',
         '     .Component "component1" ',
         '     .Material "PLA/material1" ',
         '     .Tangency "0.0" ',
@@ -315,16 +314,16 @@ if __name__ == '__main__':
     vbacode = line_break.join(vbacode)
     add_to_history(header, vbacode)
 
-    header = "boolean add shapes: component1:solid3, componenti:cell"
-    vbacode = 'Solid.Add "component1:solid3", "component1:cell"'
+    header = "boolean add shapes: component1:solid3, componenti:UnitCell"
+    vbacode = 'Solid.Add "component1:solid3", "component1:UnitCell"'
     add_to_history(header, vbacode)
 
     header = "boolean add shapes: component1:solid4, component1:solid3"
     vbacode = 'Solid.Add "component1:solid4", "component1:solid3"'
     add_to_history(header, vbacode)
 
-    header = "rename block: component1:solid4 to: component1:cell"
-    vbacode = 'Solid.Rename "component1:solid4", "cell"'
+    header = "rename block: component1:solid4 to: component1:UnitCell"
+    vbacode = 'Solid.Rename "component1:solid4", "UnitCell"'
     add_to_history(header, vbacode)
 
     header = "define frequency range"
@@ -334,10 +333,10 @@ if __name__ == '__main__':
     header = "define boundaries"
     vbacode = [
         'With Boundary',
-        '     .Xmin "unit cell"',
-        '     .Xmax "unit cell"',
-        '     .Ymin "unit cell"',
-        '     .Ymax "unit cell"',
+        '     .Xmin "unit UnitCell"',
+        '     .Xmax "unit UnitCell"',
+        '     .Ymin "unit UnitCell"',
+        '     .Ymax "unit UnitCell"',
         '     .Zmin "electric"',
         '     .Zmax "expanded open"',
         '     .Xsymmetry "none"',
