@@ -2,11 +2,22 @@ import os
 from time import time
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pandas import Series, DataFrame
+import seaborn as sns
 
 
-# from scipy.integrate import tplquad, dblquad, quad
+def plot_phase_distribution(phase_array):
+    phase_data = pd.DataFrame(phase_array)
+    array_id = np.asarray(range(20), dtype=int)
+    df = pd.DataFrame(phase_data, index=array_id[::-1], columns=array_id)
+
+    plt.figure()
+    sns.heatmap(data=df)
+    plt.title("Phase Distribution")
+    plt.show()
+
 
 def phase_distribution(wave_len, x, y, h):
     wave_num = 2 * np.pi / wave_len
@@ -82,3 +93,5 @@ if __name__ == "__main__":
     q = 6.5
     h = aperture_efficiency(wave_len, x, y, q)
     phase_array = phase_distribution(wave_len, x, y, h)
+    # %%
+    plot_phase_distribution(phase_array)
