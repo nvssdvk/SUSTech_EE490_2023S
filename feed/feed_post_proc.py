@@ -44,8 +44,8 @@ def efficiency():
     pass
 
 
-def find_best_q():
-    data = pd.read_table(r"../data/feed/horn_pattern.txt", sep="\s+").values
+def find_best_q(file_path):
+    data = pd.read_table(file_path, sep="\s+").values
     pattern = data[:, 2] - np.max(data[:, 2])
     ang = np.linspace(-180, 180, 361, dtype=int).reshape([361, 1])
     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape([361, 1])
@@ -73,15 +73,15 @@ def find_best_q():
     # plt.grid()
     # plt.legend()
     # plt.show()
-    #
-    # plt.figure()
-    # plt.plot(q_range, loss)
-    # plt.xlabel("Theta")
-    # plt.ylabel("Mag(dB)")
-    # plt.xlim(0, 20)
-    # plt.title("Loss of cos-q Model")
-    # plt.grid()
-    # plt.show()
+
+    plt.figure()
+    plt.plot(q_range, loss)
+    plt.xlabel("Theta")
+    plt.ylabel("Mag(dB)")
+    plt.xlim(0, 20)
+    plt.title("Loss of cos-q Model")
+    plt.grid()
+    plt.show()
 
     q_best_id = np.where(loss == np.min(loss))[0].item()
     q_best = q_range[q_best_id]
@@ -103,8 +103,7 @@ if __name__ == "__main__":
         },
 
     }
-    # units_center = np.arange(start=-150 + 7.5, stop=150, step=15)
-    # units_center = units_center.reshape([len(units_center), 1])
-    spillover(wave_len=300 / 11)
+    find_best_q(r"../data/feed/horn_pattern.txt")
+    # spillover(wave_len=300 / 11)
     # df = pd.DataFrame(columns=tt_name, data=tt_set)
     # df.to_csv(f'../data/dataset/tt_set.csv', encoding='utf-8', index=False)
