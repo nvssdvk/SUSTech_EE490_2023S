@@ -53,7 +53,7 @@ def find_best_q(file_path):
     plt.figure()
     plt.plot(ang, mag, color="r", label="CST")
 
-    q_range = np.arange(start=1, stop=20, step=0.1)
+    q_range = np.arange(start=1, stop=20, step=0.5)
     loss = np.zeros([len(q_range), 1])
     cos_model = np.zeros([361, len(q_range)])
     with np.errstate(divide='ignore'):
@@ -62,17 +62,17 @@ def find_best_q(file_path):
             cos_value = 10 * np.log10(np.power(cos_x, q * 2))
             index = np.where(q_range == q)[0].item()
             cos_model[:, index] = cos_value.flat
-            # plt.plot(ang, cos_model, label="q={:.1f}".format(q))
+            # plt.plot(ang, cos_model)
             loss[index] = 1 / 61 * np.sum(np.abs(cos_value[150:211] - mag[150:211]))
 
-    # plt.xlim(-90, 90)
-    # plt.ylim(-30, 10)
-    # plt.xlabel("Theta")
-    # plt.ylabel("Mag(dB)")
-    # plt.title("E-Pattern")
-    # plt.grid()
-    # plt.legend()
-    # plt.show()
+    plt.xlim(-90, 90)
+    plt.ylim(-30, 10)
+    plt.xlabel("Theta")
+    plt.ylabel("Mag(dB)")
+    plt.title("Power")
+    plt.grid()
+    plt.legend()
+    plt.show()
 
     plt.figure()
     plt.plot(q_range, loss)

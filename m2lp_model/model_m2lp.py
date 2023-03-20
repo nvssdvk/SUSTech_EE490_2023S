@@ -61,9 +61,9 @@ def plot_pred(dv_set, model, device, preds=None, targets=None):
     plt.plot([-180, 180], [-180, 180], c='b')
     plt.xlim(-220, 220)
     plt.ylim(-220, 220)
-    # plt.xlabel('Target')
-    # plt.ylabel('Predicted')
-    plt.title('Target v.s. Prediction')
+    plt.xlabel('Target')
+    plt.ylabel('Predicted')
+    plt.title('Prediction Error Curve')
     plt.show()
 
 
@@ -288,17 +288,17 @@ if __name__ == "__main__":
     tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
     dv_set = prep_dataloader(config['tr_path'], 'dev', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
-    # m2lp_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-    #              first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
-    # model_loss, model_loss_record = train(tr_set, dv_set, m2lp_model, config, device)
+    m2lp_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+                 first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
+    model_loss, model_loss_record = train(tr_set, dv_set, m2lp_model, config, device)
     # # %%
-    # plot_learning_curve(model_loss_record, title='m2lp m2lp_model')
+    plot_learning_curve(model_loss_record, title='m2lp m2lp_model')
     # del m2lp_model
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                  first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
     ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best m2lp_model
     model.load_state_dict(ckpt)
     plot_pred(dv_set, model, device)
-    # %%
-    preds = test(tt_set, model, device)  # predict COVID-19 cases with your m2lp_model
-    save_pred(preds, '../data/dataset/pred.csv')
+    # # %%
+    # preds = test(tt_set, model, device)  # predict COVID-19 cases with your m2lp_model
+    # save_pred(preds, '../data/dataset/pred.csv')

@@ -10,7 +10,7 @@ import seaborn as sns
 
 def plot_phase_distribution(phase_array):
     phase_data = pd.DataFrame(phase_array)
-    array_id = np.asarray(range(20), dtype=int)
+    array_id = np.asarray(range(len(phase_array)), dtype=int)
     df = pd.DataFrame(phase_data, index=array_id[::-1], columns=array_id)
 
     plt.figure()
@@ -25,7 +25,14 @@ def phase_distribution(wave_len, x, y, h):
     for i in range(len(x)):
         for j in range(len(y)):
             r[i, j] = np.sqrt(np.power(x[i], 2) + np.power(y[j], 2) + np.power(h, 2))
-    return wave_num * r
+    phase_array = wave_num * r
+    for i in range(len(phase_array)):
+        for j in range(len(phase_array[i])):
+            if phase_array[i, j] > 180:
+                phase_array[i, j] -= 360
+            elif phase_array[i, j] < -180:
+                phase_array[i, j] += 360
+    return phase_array
 
 
 def aperture_efficiency(wave_len, x, y, q):
@@ -41,7 +48,7 @@ def aperture_efficiency(wave_len, x, y, q):
 
     def cal_illumination(x, y, h, q):
         # aperture_size = (np.max(x) - np.min(x)) * (np.max(y) - np.min(y))
-        aperture_size = 0.3 ** 2
+        aperture_size = (np.max(x) - np.min(x)) ** 2
         out1, out2 = 0, 0
         amp = np.zeros([len(x), len(y)])
         for i in range(len(x)):
@@ -54,7 +61,7 @@ def aperture_efficiency(wave_len, x, y, q):
         out = 1 / aperture_size * np.power(np.abs(out1), 2) / out2
         return out, amp
 
-    h_list = np.arange(start=wave_len * 1, stop=wave_len * 50, step=wave_len)
+    h_list = np.arange(start=wave_len * 10, stop=wave_len * 100, step=wave_len)
     list_num = len(h_list)
     e_spil = np.zeros([list_num, 1])
     e_illu = np.zeros([list_num, 1])
@@ -86,12 +93,14 @@ def aperture_efficiency(wave_len, x, y, q):
 
 if __name__ == "__main__":
     wave_len = 0.3 / 10
-    x = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
-    y = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
-    # x = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
-    # y = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
+    # x = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
+    # y = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
+    x = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
+    y = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
     q = 6.5
-    h = aperture_efficiency(wave_len, x, y, q)
+    # h = aperture_efficiency(wave_len, x, y, q)
+    # h = 0.27
+    h = 1.59
     phase_array = phase_distribution(wave_len, x, y, h)
     # %%
     plot_phase_distribution(phase_array)
