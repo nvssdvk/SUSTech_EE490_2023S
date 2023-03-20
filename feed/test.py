@@ -39,7 +39,7 @@ if __name__ == "__main__":
         for j in range(N):
             x = X[i, j]  # 获取当前单元的x坐标值
             y = Y[i, j]  # 获取当前单元的y坐标值
-            phi_arr[i, j] = - k * np.sqrt((x - feed[0]) ** 2 + (y - feed[1]) ** 2 + feed[2] ** 2)  # 计算并赋值当前单元的相位值
+            phi_arr[i, j] = - k * np.sqrt((x - feed[0]) ** 2 + (y - feed[1]) ** 2 + feed[2] ** 2) *180 / np.pi
 
     phi_arr = shrink(phi_arr)
     plt.figure()
