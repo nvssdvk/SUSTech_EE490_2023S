@@ -193,9 +193,12 @@ def train(tr_set, dv_set, model, config, device):
         model.train()  # set m2lp_model to training mode
         for x, y in tr_set:  # iterate through the dataloader
             optimizer.zero_grad()  # set gradient to zero
+            # y = y / 180 * np.pi
             x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
             pred = model(x)  # forward pass (compute output)
             batch_loss = model.cal_loss(pred, y)  # compute loss
+            # batch_loss = model.cal_loss(pred / np.pi * 2, y / np.pi * 2)  # compute loss
+
             batch_loss.backward()  # compute gradient (backpropagation)
             optimizer.step()  # update m2lp_model with optimizer
             loss_record['train'].append(batch_loss.detach().cpu().item())
@@ -228,10 +231,12 @@ def dev(dv_set, model, device):
     model.eval()  # set m2lp_model to evalutation mode
     total_loss = 0
     for x, y in dv_set:  # iterate through the dataloader
+        # y = y / 180 * np.pi
         x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
         with torch.no_grad():  # disable gradient calculation
             pred = model(x)  # forward pass (compute output)
             batch_loss = model.cal_loss(pred, y)  # compute loss
+            # batch_loss = model.cal_loss(pred / np.pi * 2, y / np.pi * 2)  #
         total_loss += batch_loss.detach().cpu().item() * len(x)  # accumulate loss
     total_loss /= len(dv_set.dataset)  # compute averaged loss
 
@@ -265,10 +270,10 @@ def save_pred(preds, file):
 if __name__ == "__main__":
     config = {
         # dataset
-        'batch_size': 400,
+        'batch_size': 500,
         # m2lp_model
         'block_num': 4,
-        'first_dim': 32,
+        'first_dim': 16,  # 16,128,
         'alpha': 0.03,
         # Adam
         'weight_decay': 0,
@@ -289,11 +294,11 @@ if __name__ == "__main__":
     dv_set = prep_dataloader(config['tr_path'], 'dev', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
     m2lp_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                 first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
+                      first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
     model_loss, model_loss_record = train(tr_set, dv_set, m2lp_model, config, device)
     # # %%
     plot_learning_curve(model_loss_record, title='m2lp m2lp_model')
-    # del m2lp_model
+    del m2lp_model
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                  first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
     ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best m2lp_model
