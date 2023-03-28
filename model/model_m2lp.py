@@ -60,8 +60,8 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
     targets = targets.reshape(len(targets), 1)
 
     plt.figure()
-    plt.scatter(targets, preds, c='r', alpha=0.5, label= "Predicted data")
-    plt.plot([-360, 360], [-360, 360], c='b', label= "Theoretical data")
+    plt.scatter(targets, preds, c='r', alpha=0.5, label="Predicted data")
+    plt.plot([-360, 360], [-360, 360], c='b', label="Theoretical data")
     plt.xlim(-220, 220)
     plt.ylim(-220, 220)
     plt.xlabel('Phase by CST')
@@ -181,7 +181,7 @@ class M2LP(nn.Module):
 
 def train(tr_set, ve_set, model, config, device):
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-    # optimizer = torch.optim.SGD(m2lp_model.parameters(), lr=config['learning_rate'], momentum=0.5)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.5)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     n_epochs = config['n_epochs']
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     config = {
         # dataset
         'batch_size': 500,
-        # m2lp_model
+        # model
         'block_num': 4,
         'first_dim': 128,  # 16,128,
         'alpha': 0.03,
@@ -288,28 +288,28 @@ if __name__ == "__main__":
         'early_stop': 200,
         'min_loss': 1000.,
         # path
-        'model_path': 'models/m2lp_model.pth',
+        'model_path': 'models/model.pth',
         'tr_path': '../data/dataset/tr_set.csv',
         'tt_path': '../data/dataset/tt_set.csv'
     }
 
-    device = get_device()  # get the current available device ('cpu' or 'cuda')
+    device = get_device()
 
     tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
     ve_set = prep_dataloader(config['tr_path'], 'verify', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
 
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                      first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
+                 first_dim=config['first_dim']).to(device)
     model_loss, model_loss_record = train(tr_set, ve_set, model, config, device)
     # # %%
     plot_loss(model_loss_record)
     del model
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                 first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
-    ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best m2lp_model
+                 first_dim=config['first_dim']).to(device)
+    ckpt = torch.load(config['model_path'], map_location='cpu')
     model.load_state_dict(ckpt)
     plot_pred(ve_set, model, device)
     # # %%
-    # preds = test(tt_set, model, device)  # predict COVID-19 cases with your m2lp_model
+    # preds = test(tt_set, model, device)
     # save_pred(preds, '../data/dataset/pred.csv')

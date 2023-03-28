@@ -8,39 +8,47 @@ from pandas import Series, DataFrame
 import seaborn as sns
 
 
-def plot_phase_distribution(phase_array):
-    phase_data = pd.DataFrame(phase_array)
-    array_id = np.asarray(range(len(phase_array)))
-    df = pd.DataFrame(phase_data, index=array_id[::-1], columns=array_id)
+def phase_distribution():
+    def shrink(arr):
+        edge_min = 0
+        edge_max = 360 + edge_min
+        arr[arr > edge_max] -= 360
+        arr[arr < edge_min] += 360
+        if np.any(arr > edge_max) or np.any(arr < edge_min):
+            return shrink(arr)
+        else:
+            return arr
 
+    f = 32e9  # 工作频率
+    c = 3e8  # 光速
+    wl = c / f
+    print("wave length:{:.2f}mm".format(wl * 1e3))
+    k = 2 * np.pi / wl  # 波数
+    # h =
+    # feed = [-91.88 / 1e3, 0, 342.9 / 1e3]
+    feed = [0, 0, 0.17]
+    N = 40  # 反射面共有N*N个单元
+
+    dx = dy = 4.7 / 1e3
+    x_arr = np.arange(-N / 2 * dx, N / 2 * dx, dx)
+    y_arr = np.arange(-N / 2 * dy, N / 2 * dy, dy)
+    X, Y = np.meshgrid(x_arr, y_arr)
+
+    # 创建一个空的二维数组表示反射面上的相位分布
+    phi_arr = np.zeros((N, N))
+    for i in range(N):
+        for j in range(N):
+            x = X[i, j]  # 获取当前单元的x坐标值
+            y = Y[i, j]  # 获取当前单元的y坐标值
+            phi_arr[i, j] = - k * np.sqrt((x - feed[0]) ** 2 + (y - feed[1]) ** 2 + feed[2] ** 2) * 180 / np.pi
+
+    phi_arr = shrink(phi_arr)
     plt.figure()
-    sns.heatmap(data=df)
-    plt.title("Phase Distribution")
+    plt.imshow(phi_arr, cmap='hot', interpolation='nearest')
+    plt.colorbar()
     plt.show()
 
-
-def phase_distribution(wave_len, x, y, h):
-    def phase_normal(phase_array):
-        mask = phase_array > 180  # 创建一个布尔数组，表示哪些元素大于180
-        phase_array[mask] = np.subtract(phase_array[mask], 360)  # 对大于180的元素减去360
-        mask = phase_array < -180  # 创建一个布尔数组，表示哪些元素大于180
-        phase_array[mask] = np.add(phase_array[mask], 360)  # 对大于180的元素减去360
-        mask = (phase_array > 180) | (phase_array < -180)
-        cnt = np.count_nonzero(mask)
-        if cnt == 0:
-            return phase_array
-        else:  # 创建一个布尔数组，表示哪些元素大于180或小于-180
-            return phase_normal(phase_array)
-
-    wave_num = 2 * np.pi / wave_len
-    # wave_num = 1 / wave_len
-    r = np.zeros([len(x), len(y)])
-    for i in range(len(x)):
-        for j in range(len(y)):
-            r[i, j] = np.sqrt(np.power(x[i], 2) + np.power(y[j], 2) + np.power(h, 2))
-    phase_array = wave_num * r
-    phase_array = phase_normal(phase_array)
-    return phase_array
+    return phi_arr
 
 
 def aperture_efficiency(wave_len, x, y, q):
@@ -100,32 +108,12 @@ def aperture_efficiency(wave_len, x, y, q):
 
 
 if __name__ == "__main__":
-    f = 10e9  # 工作频率为10GHz
-    c = 3e8  # 光速
-    k = 2 * np.pi * f / c  # 波数
-    x0 = 0  # 馈电天线的相位中心x坐标
-    y0 = 0  # 馈电天线的相位中心y坐标
-    z0 = 100  # 馈电天线的相位中心z坐标
-    N = 20  # 反射面共有20*20个单元
-    # 假设反射面边长为1米，每个单元边长为0.05米
-    dx = dy = 0.05
-    # 创建一个二维数组表示反射面上的x坐标
-    x_arr = np.arange(-N / 2 * dx, N / 2 * dx, dx)
-    # 创建一个二维数组表示反射面上的y坐标
-    y_arr = np.arange(-N / 2 * dy, N / 2 * dy, dy)
-    # 使用np.meshgrid函数将两个一维数组转换为二维网格数组
-    X, Y = np.meshgrid(x_arr, y_arr)
-
     wave_len = 0.3 / 10
-    # x = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
-    # y = np.arange(start=(-150 + 7.5) / 1e3, stop=150 / 1e3, step=15 / 1e3)
+
     x = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
     y = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
     q = 6.5
-    # h = aperture_efficiency(wave_len, x, y, q)
-    # h = 0.27
-    # h = 1.59
-    h = 100 * wave_len
-    phase_array = phase_distribution(wave_len, x, y, h)
-    # %%
-    plot_phase_distribution(phase_array)
+    h = aperture_efficiency(wave_len, x, y, q)
+
+    # h = 100 * wave_len
+    # phase_array = phase_distribution()

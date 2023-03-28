@@ -187,7 +187,7 @@ def train(tr_set, dv_set, model, config, device):
     n_epochs = config['n_epochs']
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'], weight_decay=config['weight_decay'])
-    # optimizer = torch.optim.SGD(m2lp_model.parameters(), lr=config['learning_rate'], momentum=0.5)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=config['learning_rate'], momentum=0.5)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     min_loss = config['min_loss']
@@ -197,7 +197,7 @@ def train(tr_set, dv_set, model, config, device):
     epoch = 0
     while epoch < n_epochs:
         epoch_loss = 0
-        model.train()  # set m2lp_model to training mode
+        model.train()  # set model to training mode
         for x, y in tr_set:  # iterate through the dataloader
             optimizer.zero_grad()  # set gradient to zero
             # y = y / 180 * np.pi
@@ -207,19 +207,19 @@ def train(tr_set, dv_set, model, config, device):
             # batch_loss = model.cal_loss(pred / np.pi * 2, y / np.pi * 2)  # compute loss
 
             batch_loss.backward()  # compute gradient (backpropagation)
-            optimizer.step()  # update m2lp_model with optimizer
+            optimizer.step()  # update model with optimizer
             loss_record['train'].append(batch_loss.detach().cpu().item())
             epoch_loss += batch_loss.detach().cpu().item()
         scheduler.step()
         print(f'Training[{epoch + 1}/{n_epochs}], Loss={epoch_loss / len(tr_set.dataset)}', end='\r')
 
-        # After each epoch, test your m2lp_model on the validation (development) set.
+        # After each epoch, test your model on the validation (development) set.
         dev_loss = dev(dv_set, model, device)
         if dev_loss < min_loss:
-            # Save m2lp_model if your m2lp_model improved
+            # Save model if your model improved
             min_loss = dev_loss
             print(f'Saving model (epoch = {epoch + 1}, loss = {min_loss})')
-            torch.save(model.state_dict(), config['model_path'])  # Save m2lp_model to specified path
+            torch.save(model.state_dict(), config['model_path'])  # Save model to specified path
             early_stop_cnt = 0
         else:
             early_stop_cnt += 1
@@ -227,7 +227,7 @@ def train(tr_set, dv_set, model, config, device):
         epoch += 1
         loss_record['dev'].append(dev_loss)
         if early_stop_cnt > config['early_stop']:
-            # Stop training if your m2lp_model stops improving for "config['early_stop']" epochs.
+            # Stop training if your model stops improving for "config['early_stop']" epochs.
             break
 
     print(F'Finished training after {epoch} epochs')
@@ -235,7 +235,7 @@ def train(tr_set, dv_set, model, config, device):
 
 
 def dev(dv_set, model, device):
-    model.eval()  # set m2lp_model to evalutation mode
+    model.eval()  # set model to evalutation mode
     total_loss = 0
     for x, y in dv_set:  # iterate through the dataloader
         # y = y / 180 * np.pi
@@ -251,7 +251,7 @@ def dev(dv_set, model, device):
 
 
 def test(tt_set, model, device):
-    model.eval()  # set m2lp_model to evalutation mode
+    model.eval()  # set model to evalutation mode
     preds = []
     for x in tt_set:  # iterate through the dataloader
         x = x.reshape(len(x), 3, 1).to(device)  # move data to device (cpu/cuda)
@@ -280,7 +280,7 @@ def objective(**params):
     config = {
         # dataset
         'batch_size': 500,
-        # m2lp_model
+        # model
         'block_num': 4,
         'first_dim': 16,  # 16,128,
         'alpha': 0.03,
@@ -292,7 +292,7 @@ def objective(**params):
         'early_stop': 200,
         'min_loss': 1000.,
         # path
-        'model_path': 'models/m2lp_model.pth',
+        'model_path': 'models/model.pth',
         'tr_path': '../data/dataset/tr_set.csv',
         'tt_path': '../data/dataset/tt_set.csv'
     }
@@ -318,7 +318,7 @@ def objective(**params):
             pred = model(x)  # forward pass (compute output)
             batch_loss = criterion(pred, y)  # compute loss
             batch_loss.backward()  # compute gradient (backpropagation)
-            optimizer.step()  # update m2lp_model with optimizer
+            optimizer.step()  # update model with optimizer
         scheduler.step()
         print(f'Optimize[{epoch + 1}/{config["n_epochs"]}]', end='\r')
 
@@ -354,7 +354,7 @@ if __name__ == "__main__":
     # config = {
     #     # dataset
     #     'batch_size': 500,
-    #     # m2lp_model
+    #     # model
     #     'block_num': 4,
     #     'first_dim': 16,  # 16,128,
     #     'alpha': 0.03,
@@ -366,7 +366,7 @@ if __name__ == "__main__":
     #     'early_stop': 300,
     #     'min_loss': 1000.,
     #     # path
-    #     'model_path': 'models/m2lp_model.pth',
+    #     'model_path': 'models/model.pth',
     #     'tr_path': '../data/dataset/tr_set.csv',
     #     'tt_path': '../data/dataset/tt_set.csv'
     # }
@@ -381,17 +381,17 @@ if __name__ == "__main__":
     # tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
     # dv_set = prep_dataloader(config['tr_path'], 'dev', config['batch_size'])
     # tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
-    # m2lp_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-    #                   first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
-    # model_loss, model_loss_record = train(tr_set, dv_set, m2lp_model, config, device)
-    # # # %%
-    # plot_learning_curve(model_loss_record, title='m2lp m2lp_model')
-    # del m2lp_model
     # model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-    #              first_dim=config['first_dim']).to(device)  # Construct m2lp_model and move to device
-    # ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best m2lp_model
+    #                   first_dim=config['first_dim']).to(device)  # Construct model and move to device
+    # model_loss, model_loss_record = train(tr_set, dv_set, model, config, device)
+    # # # %%
+    # plot_learning_curve(model_loss_record, title='m2lp model')
+    # del model
+    # model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+    #              first_dim=config['first_dim']).to(device)  # Construct model and move to device
+    # ckpt = torch.load(config['model_path'], map_location='cpu')  # Load your best model
     # model.load_state_dict(ckpt)
     # plot_pred(dv_set, model, device)
     # # %%
-    # preds = test(tt_set, model, device)  # predict COVID-19 cases with your m2lp_model
+    # preds = test(tt_set, model, device)  # predict COVID-19 cases with your model
     # save_pred(preds, '../data/dataset/pred.csv')
