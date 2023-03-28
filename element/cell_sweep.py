@@ -11,7 +11,7 @@ line_break = '\n'
 
 
 def read_data():
-    file_path = "../data/lhs/samples.csv"
+    file_path = "../data/dataset/samples.csv"
     df = pd.read_csv(file_path, header=None, sep=',')
     df = np.asarray(df)
     num = len(df)
@@ -45,17 +45,6 @@ def change_para(modeler, param_name, para_value):
     vba_code = f'StoreParameter ("{param_name}", "{para_value}")'
     res = add_to_history(modeler, header, vba_code)
     return res
-
-
-def delete_result(modeler):
-    vbacode = [
-        'With ResultTree',
-        '.Name "1D Results"',
-        '.Delete',
-        'End With',
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, "delete result", vbacode)
 
 
 if __name__ == '__main__':
@@ -98,7 +87,6 @@ if __name__ == '__main__':
         df = pd.DataFrame(columns=df_name, data=df_data)
         df.to_csv(f'../data/s11/s11_{i}.csv', encoding='utf-8', index=False)
 
-        # delete_result(my_modeler)
         time_loop_end = time.time()
         if time_loop_end - time_loop_start >= 1000:
             my_mws.save()
