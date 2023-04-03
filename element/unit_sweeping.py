@@ -49,7 +49,7 @@ def change_para(modeler, param_name, para_value):
 
 if __name__ == '__main__':
     # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\data\RA_23_03_09\element.cst")
-    my_project_path = r"../cst/cell.cst"
+    my_project_path = r"D:\User\Course\EE490.2023S\SUSTech_EE490_2023S\cst\cell_v4.cst"
 
     num, ids, a, h, e = read_data()
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     idcnt = 0
     time_loop_start = time.time()
-    for i in range(2000, 3000):
+    for i in range(3000):
         change_para(my_modeler, "a", ','.join(str(j) for j in a[i]))
         change_para(my_modeler, "h", ','.join(str(j) for j in h[i]))
         change_para(my_modeler, "e", ','.join(str(j) for j in e[i]))
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
         my_project = cst.results.ProjectFile()
         my_project.init(my_project_path, True)
-        s11 = my_project.get_3d().get_result_item(r"1D Results\S-Parameters\SZmax(1),Zmax(1)")
+        s11 = my_project.get_3d().get_result_item(r"1D Results\S-Parameters\S1,1")
         num = len(s11)
         s11_data = np.array(s11.get_data())
         s11_freq = np.array(np.abs(s11_data[:, 0]), dtype=float).reshape([num, 1])
