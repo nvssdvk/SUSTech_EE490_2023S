@@ -59,8 +59,9 @@ if __name__ == '__main__':
     my_modeler = my_mws.modeler
 
     idcnt = 0
+    id_reset  = 0
     time_loop_start = time.time()
-    for i in range(3000):
+    for i in range(0, 3000):
         change_para(my_modeler, "a", ','.join(str(j) for j in a[i]))
         change_para(my_modeler, "h", ','.join(str(j) for j in h[i]))
         change_para(my_modeler, "e", ','.join(str(j) for j in e[i]))
@@ -88,10 +89,12 @@ if __name__ == '__main__':
         df.to_csv(f'../data/s11/s11_{i}.csv', encoding='utf-8', index=False)
 
         time_loop_end = time.time()
-        if time_loop_end - time_loop_start >= 1000:
+        if time_loop_end - time_loop_start >= 600:
             my_mws.save()
             my_mws.close()
             my_de.close()
+            id_reset += 1
+            time.sleep(5)
             time_loop_start = time.time()
             my_de = cst.interface.DesignEnvironment()
             my_mws = my_de.open_project(my_project_path)

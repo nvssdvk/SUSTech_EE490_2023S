@@ -88,13 +88,15 @@ class M2LPDataset(Dataset):
         else:
             target = data[:, -1]
             data = data[:, feats]
-            indices = torch.zeros([len(data), 1])
-            if mode == 'train':
-                indices = [i for i in range(len(data)) if i % 10 != 0]
-            elif mode == 'verify':
-                indices = [i for i in range(len(data)) if i % 10 == 0]
-            self.data = data[indices]
-            self.target = target[indices]
+            # indices = torch.zeros([len(data), 1])
+            # if mode == 'train':
+            #     indices = [i for i in range(len(data)) if i % 10 != 0]
+            # elif mode == 'verify':
+            #     indices = [i for i in range(len(data)) if i % 10 == 0]
+            # self.data = data[indices]
+            # self.target = target[indices]
+            self.data = data
+            self.target = target
 
             # data_min = np.min(data, axis=0)
             # data_max = np.max(data, axis=0)
@@ -290,13 +292,14 @@ if __name__ == "__main__":
         # path
         'model_path': 'models/model.pth',
         'tr_path': '../data/dataset/tr_set.csv',
+        've_path': '../data/dataset/ve_set.csv',
         'tt_path': '../data/dataset/tt_set.csv'
     }
 
     device = get_device()
 
     tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
-    ve_set = prep_dataloader(config['tr_path'], 'verify', config['batch_size'])
+    ve_set = prep_dataloader(config['ve_path'], 'verify', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
 
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
