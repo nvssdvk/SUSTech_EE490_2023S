@@ -61,7 +61,8 @@ if __name__ == '__main__':
     idcnt = 0
     id_reset = 0
     time_loop_start = time.time()
-    for i in range(630, 2000):
+    for i in range(1916, 3000):
+        # my_mws.save()
         change_para(my_modeler, "a", ','.join(str(j) for j in a[i]))
         change_para(my_modeler, "h", ','.join(str(j) for j in h[i]))
         change_para(my_modeler, "e", ','.join(str(j) for j in e[i]))
@@ -94,7 +95,7 @@ if __name__ == '__main__':
             my_mws.close()
             my_de.close()
             id_reset += 1
-            time.sleep(30)
+            time.sleep(5)
             time_loop_start = time.time()
             my_de = cst.interface.DesignEnvironment()
             my_de.set_quiet_mode(True)
