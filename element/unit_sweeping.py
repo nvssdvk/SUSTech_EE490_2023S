@@ -59,9 +59,9 @@ if __name__ == '__main__':
     my_modeler = my_mws.modeler
 
     idcnt = 0
-    id_reset  = 0
+    id_reset = 0
     time_loop_start = time.time()
-    for i in range(0, 3000):
+    for i in range(630, 2000):
         change_para(my_modeler, "a", ','.join(str(j) for j in a[i]))
         change_para(my_modeler, "h", ','.join(str(j) for j in h[i]))
         change_para(my_modeler, "e", ','.join(str(j) for j in e[i]))
@@ -94,14 +94,15 @@ if __name__ == '__main__':
             my_mws.close()
             my_de.close()
             id_reset += 1
-            time.sleep(5)
+            time.sleep(30)
             time_loop_start = time.time()
             my_de = cst.interface.DesignEnvironment()
+            my_de.set_quiet_mode(True)
             my_mws = my_de.open_project(my_project_path)
             my_modeler = my_mws.modeler
 
         time_end = time.time()
         print(
-            f'No.{idcnt}, ID:{ids[i]}, RunTime:{time_end - time_start}, AvgTime:{(time_end - time_start) / (idcnt + 1)}')
+            f'No.{idcnt}, ID:{ids[i]}, Reset:{id_reset},RunTime:{time_end - time_start}, AvgTime:{(time_end - time_start) / (idcnt + 1)}')
         idcnt += 1
     my_mws.save()
