@@ -65,9 +65,9 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
 
     plt.figure()
     plt.scatter(targets, preds, c='r', alpha=0.5, label="Predicted data")
-    plt.plot([-360, 360], [-360, 360], c='b', label="Theoretical data")
-    plt.xlim(-220, 220)
-    plt.ylim(-220, 220)
+    plt.plot([-900, 180], [-900, 180], c='b', label="Theoretical data")
+    plt.xlim(-900, 180)
+    plt.ylim(-900, 180)
     plt.xlabel('Phase by CST')
     plt.ylabel('Phase by M2LP')
     plt.title('Prediction Error Curve')
@@ -296,9 +296,9 @@ if __name__ == "__main__":
         'min_loss': 1000.,
         # path
         'model_path': 'models/model.pth',
-        'tr_path': '../data/dataset/tr_set.csv',
-        've_path': '../data/dataset/ve_set.csv',
-        'tt_path': '../data/dataset/tt_set.csv'
+        'tr_path': r'../data/dataset/tr_set_unwrap.csv',
+        've_path': r'../data/dataset/ve_set_unwrap.csv',
+        'tt_path': r'../data/dataset/tt_set.csv'
     }
 
     device = get_device()
