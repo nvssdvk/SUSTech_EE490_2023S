@@ -11,7 +11,6 @@ import os
 # For plotting
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
 
 matplotlib.rcParams['axes.unicode_minus'] = False
 
@@ -32,9 +31,11 @@ def plot_loss(loss_record):
     total_steps = len(loss_record['train'])
     x_1 = range(total_steps)
     x_2 = x_1[::len(loss_record['train']) // len(loss_record['verify'])]
-    figure()
-    plt.plot(x_1, loss_record['train'], c='tab:red', label='train')
-    plt.plot(x_2, loss_record['verify'], c='tab:cyan', label='verify')
+    plt.figure()
+    plt.plot(x_1, (loss_record['train']), c='tab:red', label='train')
+    plt.plot(x_2, (loss_record['verify']), c='tab:cyan', label='verify')
+    # plt.plot(x_1, np.rad2deg(loss_record['train']), c='tab:red', label='train')
+    # plt.plot(x_2, np.rad2deg(loss_record['verify']), c='tab:cyan', label='verify')
     plt.ylim(0.0, 120)
     plt.xlabel('Training steps')
     plt.ylabel('MAE')
@@ -58,6 +59,9 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
 
     preds = preds.reshape(len(preds), 1)
     targets = targets.reshape(len(targets), 1)
+
+    # preds = np.rad2deg(preds)
+    # targets = np.rad2deg(targets)
 
     plt.figure()
     plt.scatter(targets, preds, c='r', alpha=0.5, label="Predicted data")
@@ -86,7 +90,8 @@ class M2LPDataset(Dataset):
             # self.data = (self.data - data_min) / (data_max - data_min)
 
         else:
-            target = data[:, -1]
+            target = (data[:, -1])
+            # target = np.deg2rad(data[:, -1])
             data = data[:, feats]
             # indices = torch.zeros([len(data), 1])
             # if mode == 'train':
@@ -133,7 +138,7 @@ def prep_dataloader(data_dir, mode, batch_size: int, n_jobs=0):
 
 class M2LP(nn.Module):
 
-    def __init__(self, input_dim=1, first_dim=1, block_num=1, alpha=0.01):
+    def __init__(self, input_dim, first_dim, block_num, alpha):
         super(M2LP, self).__init__()
 
         self.prep_layer = nn.Sequential(
@@ -215,7 +220,7 @@ def train(tr_set, ve_set, model, config, device):
                 pred = model(x)
                 batch_loss = model.cal_loss(pred, y)
                 loss_record['verify'].append(batch_loss.detach().cpu().item())
-                ver_los += batch_loss.detach().cpu().item() * len(x)
+            ver_los += batch_loss.detach().cpu().item() * len(x)
         ver_los /= len(ve_set.dataset)
 
         if ver_los < min_loss:
@@ -280,9 +285,9 @@ if __name__ == "__main__":
         # dataset
         'batch_size': 500,
         # model
-        'block_num': 4,
-        'first_dim': 128,  # 16,128,
-        'alpha': 0.03,
+        'block_num': 3,
+        'first_dim': 64,  # 16,128,
+        'alpha': 0.04,
         # Adam
         'learning_rate': 1e-2,
         # train
@@ -308,6 +313,7 @@ if __name__ == "__main__":
     # # %%
     plot_loss(model_loss_record)
     del model
+
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                  first_dim=config['first_dim']).to(device)
     ckpt = torch.load(config['model_path'], map_location='cpu')
