@@ -76,7 +76,7 @@ def save_pred(preds, file):
     print('Saving results to {}'.format(file))
     pred_name = ["a", "h", "e", "pred angle"]
     pred_set = np.zeros([len(preds), 4])
-    temp_csv = pd.read_csv(r"../data/dataset/space.csv", header=0, engine="c").values
+    temp_csv = pd.read_csv(r"../../data/dataset/space.csv", header=0, engine="c").values
     pred_set[:, 0:3] = temp_csv[:, 1:]
     pred_set[:, -1] = preds[:, 0, 0]
     df = pd.DataFrame(columns=pred_name, data=pred_set)
@@ -293,8 +293,8 @@ def objective(**params):
         'min_loss': 1000.,
         # path
         'model_path': 'models/model.pth',
-        'tr_path': '../data/dataset/tr_set.csv',
-        'tt_path': '../data/dataset/tt_set.csv'
+        'tr_path': '../../data/dataset/tr_set.csv',
+        'tt_path': '../../data/dataset/tt_set.csv'
     }
     tr_set = prep_dataloader(config['tr_path'], 'train', config['batch_size'])
     dv_set = prep_dataloader(config['tr_path'], 'dev', config['batch_size'])

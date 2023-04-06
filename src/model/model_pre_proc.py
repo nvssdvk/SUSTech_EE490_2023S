@@ -27,11 +27,11 @@ def proc_main(s11_path, sample_path, save_path):
 
 
 if __name__ == "__main__":
-    proc_main(f'../data/s11_tr', f'../data/dataset/samples_tr.csv', f'../data/dataset/tr_set.csv')
-    proc_main(f'../data/s11_ve', f'../data/dataset/samples_ve.csv', f'../data/dataset/ve_set.csv')
+    proc_main(r'../../data/s11_tr', r'../../data/dataset/samples_tr.csv', r'../../data/dataset/tr_set.csv')
+    proc_main(r'../../data/s11_ve', r'../../data/dataset/samples_ve.csv', r'../../data/dataset/ve_set.csv')
 
     tt_name = ["a", "h", "e"]
-    tt_set = pd.read_csv(r"../data/dataset/space.csv", header=0, engine="c").values
+    tt_set = pd.read_csv(r"../../data/dataset/space.csv", header=0, engine="c").values
     tt_set = tt_set[:, 1:]
     df = pd.DataFrame(columns=tt_name, data=tt_set)
-    df.to_csv(f'../data/dataset/tt_set.csv', encoding='utf-8', index=False)
+    df.to_csv(f'../../data/dataset/tt_set.csv', encoding='utf-8', index=False)

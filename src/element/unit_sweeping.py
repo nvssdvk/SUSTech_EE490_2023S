@@ -49,7 +49,7 @@ def change_para(modeler, param_name, para_value):
 
 if __name__ == '__main__':
     # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\data\RA_23_03_09\element.cst")
-    my_project_path = r"D:\User\Course\EE490.2023S\SUSTech_EE490_2023S\cst\cell_v4.cst"
+    my_project_path = r"../../cst/cell_v4.cst"
 
     num, ids, a, h, e = read_data()
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
             df_data[df_i, 2] = s11_phase[df_i]
 
         df = pd.DataFrame(columns=df_name, data=df_data)
-        df.to_csv(f'../data/s11/s11_{i}.csv', encoding='utf-8', index=False)
+        df.to_csv(f'../../data/s11/s11_{i}.csv', encoding='utf-8', index=False)
 
         time_loop_end = time.time()
         if time_loop_end - time_loop_start >= 600:

@@ -272,11 +272,11 @@ def save_pred(preds, file):
     print('Saving results to {}'.format(file))
     pred_name = ["a", "h", "e", "pred angle"]
     pred_set = np.zeros([len(preds), 4])
-    temp_csv = pd.read_csv(r"../data/dataset/space.csv", header=0, engine="c").values
+    temp_csv = pd.read_csv(r"../../data/dataset/space.csv", header=0, engine="c").values
     pred_set[:, 0:3] = temp_csv[:, 1:]
     pred_set[:, -1] = preds[:, 0, 0]
     df = pd.DataFrame(columns=pred_name, data=pred_set)
-    df.to_csv(f'../data/dataset/pred_set.csv', encoding='utf-8', index=False)
+    df.to_csv(r'../../data/dataset/pred_set.csv', encoding='utf-8', index=False)
     del df
 
 
@@ -296,9 +296,9 @@ if __name__ == "__main__":
         'min_loss': 1000.,
         # path
         'model_path': 'models/model.pth',
-        'tr_path': r'../data/dataset/tr_set_unwrap.csv',
-        've_path': r'../data/dataset/ve_set_unwrap.csv',
-        'tt_path': r'../data/dataset/tt_set.csv'
+        'tr_path': r'../../data/dataset/tr_set_unwrap.csv',
+        've_path': r'../../data/dataset/ve_set_unwrap.csv',
+        'tt_path': r'../../data/dataset/tt_set.csv'
     }
 
     device = get_device()

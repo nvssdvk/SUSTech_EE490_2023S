@@ -7,7 +7,7 @@ line_break = '\n'
 
 if __name__ == '__main__':
     my_project_name = f'element.cst'
-    my_project_path = os.path.abspath(f'../cst/{my_project_name}')
+    my_project_path = os.path.abspath(f'../../cst/{my_project_name}')
     my_de = cst.interface.DesignEnvironment()
     my_mws = my_de.new_mws()
     my_mws.save(my_project_path)

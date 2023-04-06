@@ -105,6 +105,7 @@ def aperture_efficiency(wave_len, x, y, q):
           .format(h_best, e_spil[id_best].item(), e_illu[id_best].item(), e_antenna[id_best].item()))
     return h_best
 
+
 def find_best_q(file_path):
     data = pd.read_table(file_path, sep="\s+").values
     pattern = data[:, 2] - np.max(data[:, 2])
@@ -151,8 +152,7 @@ def find_best_q(file_path):
 
 
 if __name__ == "__main__":
-
-    q_best = find_best_q(r"../data/feed/horn_pattern.txt")
+    q_best = find_best_q(r"../../data/feed/horn_pattern.txt")
     wave_len = 0.3 / 10
 
     x = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
