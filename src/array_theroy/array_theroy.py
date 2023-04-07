@@ -14,7 +14,7 @@ theta = np.linspace(-np.pi, np.pi, 1000)
 
 # 定义阵列因子函数
 def array_factor(N, d, k, theta):
-    # N: 元素个数
+    # unit_num: 元素个数
     # d: 元素间距
     # k: 波数
     # theta: 角度（弧度）

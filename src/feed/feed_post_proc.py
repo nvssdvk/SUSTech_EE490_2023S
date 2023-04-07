@@ -4,79 +4,112 @@ from time import time
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from scipy.integrate import tplquad, dblquad, quad
 
 
-def phase_distribution():
+def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_num=40, beam_theta=0, beam_phi=0):
+    if feed_position is None:
+        feed_position = [0, 0, 0.17]
+    if unit_len is None:
+        unit_len = wl / 2
+
     def shrink(arr):
         edge_min = 0
-        edge_max = 360 + edge_min
-        arr[arr > edge_max] -= 360
-        arr[arr < edge_min] += 360
-        if np.any(arr > edge_max) or np.any(arr < edge_min):
-            return shrink(arr)
-        else:
-            return arr
+        edge_max = 360
+        arr = np.mod(arr - edge_min, edge_max - edge_min) + edge_min
+        return arr
 
-    f = 32e9  # 工作频率
-    c = 3e8  # 光速
-    wl = c / f
     print("wave length:{:.2f}mm".format(wl * 1e3))
     k = 2 * np.pi / wl  # 波数
-    # h =
-    # feed = [-91.88 / 1e3, 0, 342.9 / 1e3]
-    feed = [0, 0, 0.17]
-    N = 40  # 反射面共有N*N个单元
+    beam_theta = np.deg2rad(beam_theta)
+    beam_phi = np.deg2rad(beam_phi)
 
-    dx = dy = 4.7 / 1e3
-    x_arr = np.arange(-N / 2 * dx, N / 2 * dx, dx)
-    y_arr = np.arange(-N / 2 * dy, N / 2 * dy, dy)
-    X, Y = np.meshgrid(x_arr, y_arr)
+    dx = dy = unit_len
+    x_arr = np.arange(-unit_num / 2 * dx, unit_num / 2 * dx, dx)
+    y_arr = np.arange(-unit_num / 2 * dy, unit_num / 2 * dy, dy)
+    xx, yy = np.meshgrid(x_arr, y_arr)
 
-    # 创建一个空的二维数组表示反射面上的相位分布
-    phi_arr = np.zeros((N, N))
-    for i in range(N):
-        for j in range(N):
-            x = X[i, j]  # 获取当前单元的x坐标值
-            y = Y[i, j]  # 获取当前单元的y坐标值
-            phi_arr[i, j] = - k * np.sqrt((x - feed[0]) ** 2 + (y - feed[1]) ** 2 + feed[2] ** 2) * 180 / np.pi
+    plt.figure(figsize=(19.2, 10.8))
 
+    plt.subplot(221)
+    xspd = xx - feed_position[0]  # vectorize calculation of x and y
+    yspd = yy - feed_position[1]
+    z = feed_position[2]
+    phi_arr_spd = -k * np.sqrt(xspd ** 2 + yspd ** 2 + z ** 2)
+    phi_arr_spd = phi_arr_spd * 180 / np.pi
+    phi_arr_spd = shrink(phi_arr_spd)
+    plt.imshow((phi_arr_spd), cmap='hot', interpolation='nearest')
+    plt.colorbar()
+    plt.xlabel("x-axis [element number]")
+    plt.ylabel("y-axis [element number]")
+    plt.title("Spatial Delay")
+
+    plt.subplot(222)
+    cos_phi = np.cos(beam_phi)
+    sin_phi = np.sin(beam_phi)
+    phi_arr_pp = -k * (xx * cos_phi + yy * sin_phi) * np.sin(beam_theta)
+    phi_arr_pp = phi_arr_pp * 180 / np.pi
+    phi_arr_pp = shrink(phi_arr_pp)
+    plt.imshow((phi_arr_pp), cmap='hot', interpolation='nearest')
+    plt.colorbar()
+    plt.xlabel("x-axis [element number]")
+    plt.ylabel("y-axis [element number]")
+    plt.title("Progressive Phase")
+
+    plt.subplot(223)
+    phi_arr = -phi_arr_spd + phi_arr_pp
     phi_arr = shrink(phi_arr)
-    plt.figure()
     plt.imshow(phi_arr, cmap='hot', interpolation='nearest')
     plt.colorbar()
+    plt.xlabel("x-axis [element number]")
+    plt.ylabel("y-axis [element number]")
+    plt.title("Phase Distribution on the Reflectarray Antenna")
+
+    plt.subplot(224)
+    unit_num_con = 1e3
+    dx = dy = unit_len
+    x_arr = np.arange(-unit_num / 2 * dx, unit_num / 2 * dx, unit_len * unit_num / unit_num_con)
+    y_arr = np.arange(-unit_num / 2 * dy, unit_num / 2 * dy, unit_len * unit_num / unit_num_con)
+    xx, yy = np.meshgrid(x_arr, y_arr)
+    xspd = xx - feed_position[0]  # vectorize calculation of x and y
+    yspd = yy - feed_position[1]
+    z = feed_position[2]
+    cos_phi, sin_phi = np.cos(beam_phi), np.sin(beam_phi)
+    phi_arr_con = k * np.sqrt(xspd ** 2 + yspd ** 2 + z ** 2) - k * (xx * cos_phi + yy * sin_phi) * np.sin(beam_theta)
+    phi_arr_con = phi_arr_con * 180 / np.pi
+    phi_arr_con = shrink(phi_arr_con)
+    plt.imshow(phi_arr_con, cmap='hot', interpolation='nearest')
+    plt.colorbar()
+    plt.xlabel("x-axis [mm]")
+    plt.ylabel("y-axis [mm]")
+    plt.title("Phase Distribution on the Continuous Aperture")
+
     plt.show()
 
     return phi_arr
 
 
-def aperture_efficiency(wave_len, x, y, q):
+def aperture_efficiency(wl, x, y, q):
     def cal_spillover(x, y, h, q):
-        out = 0
-        for i in range(len(x)):
-            for j in range(len(y)):
-                r = np.sqrt(np.power(x[i], 2) + np.power(y[j], 2) + np.power(h, 2))
-                temp = np.power(h / r, q * 2)
-                out += (0.015 * 0.015 * temp * h / np.power(r, 3))
+        xx, yy = np.meshgrid(x, y)
+        rr = np.sqrt(np.power(xx, 2) + np.power(yy, 2) + np.power(h, 2))
+        temp = np.power(h / rr, q * 2)
+        out = np.sum(0.015 * 0.015 * temp * h / np.power(rr, 3))
         out = out / (2 * np.pi / (2 * q + 1))
         return out
 
     def cal_illumination(x, y, h, q):
-        # aperture_size = (np.max(x) - np.min(x)) * (np.max(y) - np.min(y))
         aperture_size = (np.max(x) - np.min(x)) ** 2
         out1, out2 = 0, 0
-        amp = np.zeros([len(x), len(y)])
-        for i in range(len(x)):
-            for j in range(len(y)):
-                r = np.sqrt(np.power(x[i], 2) + np.power(y[j], 2) + np.power(h, 2))
-                temp = np.power(h / r, q + 0) / r
-                amp[i, j] = temp
-                out1 += 0.015 * 0.015 * temp
-                out2 += 0.015 * 0.015 * np.power(np.abs(temp), 2)
-        out = 1 / aperture_size * np.power(np.abs(out1), 2) / out2
+        xx, yy = np.meshgrid(x, y, indexing='ij')
+        r = np.sqrt(xx ** 2 + yy ** 2 + h ** 2)
+        temp = (h / r) ** (q + 0) / r
+        amp = temp.copy()
+        out1 += 0.015 ** 2 * np.sum(temp)
+        out2 += 0.015 ** 2 * np.sum(np.abs(temp) ** 2)
+        out = 1 / aperture_size * np.abs(out1) ** 2 / out2
         return out, amp
 
-    h_list = np.arange(start=wave_len * 10, stop=wave_len * 100, step=wave_len)
+    h_list = np.arange(start=wl * 10, stop=wl * 100, step=wl)
     list_num = len(h_list)
     e_spil = np.zeros([list_num, 1])
     e_illu = np.zeros([list_num, 1])
@@ -89,9 +122,9 @@ def aperture_efficiency(wave_len, x, y, q):
     e_antenna = e_spil * e_illu
 
     plt.figure()
-    plt.plot(h_list / wave_len, e_spil, color="r", label="Spillover")
-    plt.plot(h_list / wave_len, e_illu, color="g", label="Illumination")
-    plt.plot(h_list / wave_len, e_antenna, color="b", label="Antenna")
+    plt.plot(h_list / wl, e_spil, color="r", label="Spillover")
+    plt.plot(h_list / wl, e_illu, color="g", label="Illumination")
+    plt.plot(h_list / wl, e_antenna, color="b", label="Antenna")
     plt.xlabel("Height(m)/$lambda$")
     plt.ylabel("")
     plt.grid()
@@ -152,16 +185,38 @@ def find_best_q(file_path):
 
 
 if __name__ == "__main__":
-    q_best = find_best_q(r"../../data/feed/horn_pattern.txt")
-    wave_len = 0.3 / 10
+    # q_best = find_best_q(r"../../data/feed/horn_pattern.txt")
 
-    x = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
-    y = np.arange(start=(-900 + 7.5) / 1e3, stop=900 / 1e3, step=15 / 1e3)
-    q = 6.5
-    h = aperture_efficiency(wave_len, x, y, q)
+    # h = aperture_efficiency(wl, x, y, q)
 
-    # h = 100 * wave_len
-    # phase_array = phase_distribution()
+    # h = 100 * wl
+
+
+
+    # # P69
+    # phase_array = phase_distribution(wl=3e8 / 32e9,
+    #                                  feed_position=[0, 0, 170 / 1e3],
+    #                                  unit_len=4.7 / 1e3,
+    #                                  unit_num=40,
+    #                                  beam_theta=0,
+    #                                  beam_phi=0)
+    #
+    # # P71
+    # phase_array = phase_distribution(wl=3e8 / 32e9,
+    #                                  feed_position=[-85 / 1e3, 0, 147.22 / 1e3],
+    #                                  unit_len=4.7 / 1e3,
+    #                                  unit_num=40,
+    #                                  beam_theta=30,
+    #                                  beam_phi=0)
+    #
+    # P337
+    phase_array = phase_distribution(wl=3e8/14.25e9,
+                                     feed_position=[-91.88 / 1e3, 0, 342.9 / 1e3],
+                                     unit_len=10 / 1e3,
+                                     unit_num=36,
+                                     beam_theta=15,
+                                     beam_phi=0)
+
 
     # df = pd.DataFrame(columns=tt_name, data=tt_set)
     # df.to_csv(f'../data/dataset/tt_set.csv', encoding='utf-8', index=False)

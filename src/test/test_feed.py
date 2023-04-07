@@ -115,5 +115,5 @@ if __name__ == "__main__":
     q = 6.5
     h = aperture_efficiency(wave_len, x, y, q)
 
-    # h = 100 * wave_len
+    # h = 100 * wl
     # phase_array = phase_distribution()

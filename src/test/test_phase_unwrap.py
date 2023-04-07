@@ -3,7 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from scipy import ndimage
 
 
 def phase_unwrap(wrap_path, unwrap_path):
@@ -54,14 +53,29 @@ def phase_unwrap(wrap_path, unwrap_path):
 
         data[(data[:, 2] == e)] = data_copy_at_e
 
-    df_name = ["a", "h", "e", "phase"]
-    df_data = data
-    df = pd.DataFrame(columns=df_name, data=df_data)
-    df.to_csv(unwrap_path, encoding='utf-8', index=False)
+        col = data_copy_at_e[:, 1]
+        raw = data_copy_at_e[:, 0]
+        raws, cols = np.meshgrid(raw, col)
+        data_plot = np.full(len(raw), len(col), np.min(phase_unwrap_at_e))
+        for i in range(len(raw)):
+            for j in range(len(col)):
+                data_plot[i,j] = data_copy_at_e[(data_copy_at_e[:, 0] == raw[i]) & (data_copy_at_e[:, 1] == col[j])]
+
+        # data_plot = data_copy_at_e[:, 3]
+        plt.figure(figsize=(19.2, 10.8))
+        plt.imshow(data_plot, cmap='cool', interpolation='nearest')
+        plt.xlabel("a")
+        plt.ylabel("h")
+        plt.title("Unwraped Phase at e={:.2f}".format(e))
+        plt.colorbar()
+    # df_name = ["a", "h", "e", "phase"]
+    # df_data = data
+    # df = pd.DataFrame(columns=df_name, data=df_data)
+    # df.to_csv(unwrap_path, encoding='utf-8', index=False)
 
 
 if __name__ == "__main__":
     phase_unwrap(wrap_path=r'../../data/dataset/tr_set.csv',
                  unwrap_path=r'../../data/dataset/tr_set_unwrap.csv')
-    phase_unwrap(wrap_path=r'../../data/dataset/ve_set.csv',
-                 unwrap_path=r'../../data/dataset/ve_set_unwrap.csv')
+    # phase_unwrap(wrap_path=r'../../data/dataset/ve_set.csv',
+    #              unwrap_path=r'../../data/dataset/ve_set_unwrap.csv')
