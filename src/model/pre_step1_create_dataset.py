@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def proc_main(s11_path, sample_path, save_path):
+def s11_to_dataset(s11_path, sample_path, save_path):
     csv_num = len(os.listdir(s11_path))
     tr_name = ["a", "h", "e", "angle"]
     tr_set = np.zeros([csv_num, 4], dtype=float)
@@ -27,8 +27,8 @@ def proc_main(s11_path, sample_path, save_path):
 
 
 if __name__ == "__main__":
-    proc_main(r'../../data/s11_tr', r'../../data/dataset/samples_tr.csv', r'../../data/dataset/tr_set.csv')
-    proc_main(r'../../data/s11_ve', r'../../data/dataset/samples_ve.csv', r'../../data/dataset/ve_set.csv')
+    s11_to_dataset(r'../../data/s11_tr', r'../../data/dataset/samples_tr.csv', r'../../data/dataset/tr_set.csv')
+    s11_to_dataset(r'../../data/s11_ve', r'../../data/dataset/samples_ve.csv', r'../../data/dataset/ve_set.csv')
 
     tt_name = ["a", "h", "e"]
     tt_set = pd.read_csv(r"../../data/dataset/space.csv", header=0, engine="c").values

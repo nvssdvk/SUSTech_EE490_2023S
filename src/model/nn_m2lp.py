@@ -41,6 +41,7 @@ def plot_loss(loss_record):
     plt.ylabel('MAE')
     plt.title('MAE Loss Curve')
     plt.legend()
+    plt.savefig(r"../../img/nn_model/loss.png")
     plt.show()
 
 
@@ -72,6 +73,7 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
     plt.ylabel('Phase by M2LP')
     plt.title('Prediction Error Curve')
     plt.legend(loc='best')
+    plt.savefig(r"../../img/nn_model/prediction_error.png")
     plt.show()
 
 
@@ -277,7 +279,37 @@ def save_pred(preds, file):
     pred_set[:, -1] = preds[:, 0, 0]
     df = pd.DataFrame(columns=pred_name, data=pred_set)
     df.to_csv(r'../../data/dataset/pred_set.csv', encoding='utf-8', index=False)
-    del df
+
+    data = pd.read_csv(r'../../data/dataset/pred_set.csv', header=0, engine="c").values
+
+    fig_unwrap_scatter = plt.figure(num=1, figsize=(19.2, 10.8))
+    fig_unwrap_tricontourf = plt.figure(num=2, figsize=(19.2, 10.8))
+    para_e = np.unique(data[:, 2])
+    for e in para_e:
+        data_copy_at_e = data[(data[:, 2] == e)]
+        sort_index = np.lexsort((data_copy_at_e[:, 0], data_copy_at_e[:, 1]))
+        data_copy_at_e = data_copy_at_e[sort_index]
+
+        plt.figure(1)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.scatter(data_copy_at_e[:, 0], data_copy_at_e[:, 1], c=data_copy_at_e[:, 3], cmap='jet')
+        plt.colorbar()
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Wraped Phase at e={:.2f}".format(e))
+
+        plt.figure(2)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.tricontourf(data_copy_at_e[:, 0], data_copy_at_e[:, 1], data_copy_at_e[:, 3], cmap='jet')
+        plt.colorbar()
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Wraped Phase at e={:.2f}".format(e))
+    plt.figure(1)
+    plt.savefig(r"../../img/tt_set_phase/fig_wrap_scatter.png")
+    plt.figure(2)
+    plt.savefig(r"../../img/tt_set_phase/fig_wrap_tricontourf.png")
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -307,18 +339,19 @@ if __name__ == "__main__":
     ve_set = prep_dataloader(config['ve_path'], 'verify', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
 
-    model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                 first_dim=config['first_dim']).to(device)
-    model_loss, model_loss_record = train(tr_set, ve_set, model, config, device)
-    # # %%
-    plot_loss(model_loss_record)
-    del model
+    # model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+    #              first_dim=config['first_dim']).to(device)
+    # model_loss, model_loss_record = train(tr_set, ve_set, model, config, device)
+    # # # %%
+    # plot_loss(model_loss_record)
+    # del model
 
     model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                  first_dim=config['first_dim']).to(device)
     ckpt = torch.load(config['model_path'], map_location='cpu')
     model.load_state_dict(ckpt)
     plot_pred(ve_set, model, device)
+
     # # %%
-    # preds = test(tt_set, model, device)
-    # save_pred(preds, '../data/dataset/pred.csv')
+    preds = test(tt_set, model, device)
+    save_pred(preds, '../data/dataset/pred.csv')
