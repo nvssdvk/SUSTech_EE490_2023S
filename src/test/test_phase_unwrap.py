@@ -11,10 +11,30 @@ def phase_unwrap(wrap_path, unwrap_path):
     para_h = np.unique(data[:, 1])
     para_e = np.unique(data[:, 2])
 
+    fig_wrap_scatter = plt.figure(num=1, figsize=(19.2, 10.8))
+    fig_wrap_tricontourf = plt.figure(num=2, figsize=(19.2, 10.8))
+    fig_unwrap_scatter = plt.figure(num=3, figsize=(19.2, 10.8))
+    fig_unwrap_tricontourf = plt.figure(num=4, figsize=(19.2, 10.8))
     for e in para_e:
         data_copy_at_e = data[(data[:, 2] == e)]
         sort_index = np.lexsort((data_copy_at_e[:, 0], data_copy_at_e[:, 1]))
         data_copy_at_e = data_copy_at_e[sort_index]
+
+        plt.figure(1)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.scatter(data_copy_at_e[:, 0], data_copy_at_e[:, 1], c=data_copy_at_e[:, 3], cmap='jet')
+        plt.colorbar()
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Wraped Phase at e={:.2f}".format(e))
+
+        plt.figure(2)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.tricontourf(data_copy_at_e[:, 0], data_copy_at_e[:, 1], data_copy_at_e[:, 3], cmap='jet')
+        plt.colorbar()
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Wraped Phase at e={:.2f}".format(e))
 
         # 对每个h内的不同a展开相位
         len_h = np.zeros(len(para_h), dtype=int)
@@ -53,22 +73,31 @@ def phase_unwrap(wrap_path, unwrap_path):
 
         data[(data[:, 2] == e)] = data_copy_at_e
 
-        col = data_copy_at_e[:, 1]
-        raw = data_copy_at_e[:, 0]
-        raws, cols = np.meshgrid(raw, col)
-        data_plot = np.full(len(raw), len(col), np.min(phase_unwrap_at_e))
-        for i in range(len(raw)):
-            for j in range(len(col)):
-                data_plot[i,j] = data_copy_at_e[(data_copy_at_e[:, 0] == raw[i]) & (data_copy_at_e[:, 1] == col[j])]
-
-        # data_plot = data_copy_at_e[:, 3]
-        plt.figure(figsize=(19.2, 10.8))
-        plt.imshow(data_plot, cmap='cool', interpolation='nearest')
-        plt.xlabel("a")
-        plt.ylabel("h")
-        plt.title("Unwraped Phase at e={:.2f}".format(e))
+        plt.figure(3)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.scatter(data_copy_at_e[:, 0], data_copy_at_e[:, 1], c=data_copy_at_e[:, 3], cmap='jet')
         plt.colorbar()
-    # df_name = ["a", "h", "e", "phase"]
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Unwraped Phase at e={:.2f}".format(e))
+
+        plt.figure(4)
+        plt.subplot(2, 2, np.where(para_e == e)[0].item() + 1)
+        plt.tricontourf(data_copy_at_e[:, 0], data_copy_at_e[:, 1], data_copy_at_e[:, 3], cmap='jet')
+        plt.colorbar()
+        plt.xlabel("a (Top Surface Length)")
+        plt.ylabel("h (Height)")
+        plt.title("Unwraped Phase at e={:.2f}".format(e))
+
+    plt.figure(1)
+    plt.show()
+    plt.figure(2)
+    plt.show()
+    plt.figure(3)
+    plt.show()
+    plt.figure(4)
+    plt.show()
+    # df_name = ["a (Top Surface Length)", "h (Height)", "e", "phase"]
     # df_data = data
     # df = pd.DataFrame(columns=df_name, data=df_data)
     # df.to_csv(unwrap_path, encoding='utf-8', index=False)
