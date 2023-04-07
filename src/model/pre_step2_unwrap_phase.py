@@ -1,3 +1,5 @@
+import time
+
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -5,7 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 
 
-def phase_unwrap(wrap_path, unwrap_path):
+def phase_unwrap(wrap_path, unwrap_path, fig_path):
     data = pd.read_csv(wrap_path, header=0, engine="c").values
 
     para_h = np.unique(data[:, 1])
@@ -90,21 +92,27 @@ def phase_unwrap(wrap_path, unwrap_path):
         plt.title("Unwraped Phase at e={:.2f}".format(e))
 
     plt.figure(1)
-    plt.show()
+    plt.savefig(r"{format}/fig_wrap_scatter.png".format(format=fig_path))
     plt.figure(2)
-    plt.show()
+    plt.savefig(r"{format}/fig_wrap_tricontourf.png".format(format=fig_path))
     plt.figure(3)
-    plt.show()
+    plt.savefig(r"{format}/fig_unwrap_scatter.png".format(format=fig_path))
     plt.figure(4)
+    plt.savefig(r"{format}/fig_unwrap_tricontourf.png".format(format=fig_path))
     plt.show()
-    # df_name = ["a (Top Surface Length)", "h (Height)", "e", "phase"]
-    # df_data = data
-    # df = pd.DataFrame(columns=df_name, data=df_data)
-    # df.to_csv(unwrap_path, encoding='utf-8', index=False)
+
+    df_name = ["a (Top Surface Length)", "h (Height)", "e", "phase"]
+    df_data = data
+    df = pd.DataFrame(columns=df_name, data=df_data)
+    df.to_csv(unwrap_path, encoding='utf-8', index=False)
 
 
 if __name__ == "__main__":
     phase_unwrap(wrap_path=r'../../data/dataset/tr_set.csv',
-                 unwrap_path=r'../../data/dataset/tr_set_unwrap.csv')
-    # phase_unwrap(wrap_path=r'../../data/dataset/ve_set.csv',
-    #              unwrap_path=r'../../data/dataset/ve_set_unwrap.csv')
+                 unwrap_path=r'../../data/dataset/tr_set_unwrap.csv',
+                 fig_path=r'../../img/tr_set_phase')
+    phase_unwrap(wrap_path=r'../../data/dataset/ve_set.csv',
+                 unwrap_path=r'../../data/dataset/ve_set_unwrap.csv',
+                 fig_path=r'../../img/ve_set_phase')
+
+
