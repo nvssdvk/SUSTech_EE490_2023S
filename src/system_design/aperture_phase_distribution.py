@@ -106,9 +106,16 @@ if __name__ == "__main__":
     #                                  beam_phi=0)
 
     # P337
-    phase_array = phase_distribution(wl=3e8 / 14.25e9,
-                                     feed_position=[-91.88 / 1e3, 0, 342.9 / 1e3],
-                                     unit_len=10 / 1e3,
-                                     unit_num=36,
-                                     beam_theta=15,
+    # phase_array = phase_distribution(wl=3e8 / 14.25e9,
+    #                                  feed_position=[-91.88 / 1e3, 0, 342.9 / 1e3],
+    #                                  unit_len=10 / 1e3,
+    #                                  unit_num=36,
+    #                                  beam_theta=15,
+    #                                  beam_phi=0)
+
+    # test
+    phase_array = phase_distribution(wl=3e8 / 10e9,
+                                     feed_position=[0, 0, 0.255],
+                                     unit_num=20,
+                                     beam_theta=0,
                                      beam_phi=0)
