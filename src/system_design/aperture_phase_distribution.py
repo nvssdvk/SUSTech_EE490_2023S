@@ -5,6 +5,25 @@ import pandas as pd
 import numpy as np
 
 
+def phase_unwrap(phi_wrap_arr):
+    len_x, len_y = phi_wrap_arr.shape[0], phi_wrap_arr.shape[1]
+    origin = phi_wrap_arr[int(len_x / 2), int(len_y / 2)]
+
+    arr = phi_wrap_arr
+
+    phi_wrap_arr = arr
+
+    # cnt = 0
+    # phi_last = 0
+    # for i in range(int(len_x/2), 1):
+    #     phi_last = phi_wrap_arr[i, int(len_y/2)]
+
+    # for i in range(len_x):
+    #     for j in range(len_y):
+
+    return phi_wrap_arr
+
+
 def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_num=40, beam_theta=0, beam_phi=0):
     if feed_position is None:
         feed_position = [0, 0, 0.17]
@@ -23,8 +42,8 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     beam_phi = np.deg2rad(beam_phi)
 
     dx = dy = unit_len
-    x_arr = np.arange(-unit_num / 2 * dx, unit_num / 2 * dx, dx)
-    y_arr = np.arange(-unit_num / 2 * dy, unit_num / 2 * dy, dy)
+    x_arr = np.arange(-unit_num / 2 * dx + unit_len / 2, unit_num / 2 * dx + unit_len / 2, dx)
+    y_arr = np.arange(-unit_num / 2 * dy + unit_len / 2, unit_num / 2 * dy + unit_len / 2, dy)
     xx, yy = np.meshgrid(x_arr, y_arr)
 
     plt.figure(figsize=(19.2, 10.8))
@@ -35,8 +54,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     z = feed_position[2]
     phi_arr_spd = -k * np.sqrt(xspd ** 2 + yspd ** 2 + z ** 2)
     phi_arr_spd = phi_arr_spd * 180 / np.pi
-    phi_arr_spd = shrink(phi_arr_spd)
-    plt.imshow((phi_arr_spd), cmap='hot', interpolation='nearest')
+    plt.imshow((shrink(phi_arr_spd)), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [element number]")
     plt.ylabel("y-axis [element number]")
@@ -47,8 +65,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     sin_phi = np.sin(beam_phi)
     phi_arr_pp = -k * (xx * cos_phi + yy * sin_phi) * np.sin(beam_theta)
     phi_arr_pp = phi_arr_pp * 180 / np.pi
-    phi_arr_pp = shrink(phi_arr_pp)
-    plt.imshow((phi_arr_pp), cmap='hot', interpolation='nearest')
+    plt.imshow((shrink(phi_arr_pp)), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [element number]")
     plt.ylabel("y-axis [element number]")
@@ -57,7 +74,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     plt.subplot(223)
     phi_arr = -phi_arr_spd + phi_arr_pp
     phi_arr = shrink(phi_arr)
-    plt.imshow(phi_arr, cmap='hot', interpolation='nearest')
+    plt.imshow(shrink(phi_arr), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [element number]")
     plt.ylabel("y-axis [element number]")
@@ -85,6 +102,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     plt.savefig(r'../../img/system/aperture_phase_distribution.png')
     plt.show()
 
+    phi_arr = phase_unwrap(phi_arr)
 
     return phi_arr
 
@@ -117,6 +135,6 @@ if __name__ == "__main__":
     # test
     phase_array = phase_distribution(wl=3e8 / 10e9,
                                      feed_position=[0, 0, 0.255],
-                                     unit_num=20,
+                                     unit_num=21,
                                      beam_theta=0,
                                      beam_phi=0)
