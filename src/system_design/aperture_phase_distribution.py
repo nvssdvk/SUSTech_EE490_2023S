@@ -7,11 +7,28 @@ import numpy as np
 
 def phase_unwrap(phi_wrap_arr):
     len_x, len_y = phi_wrap_arr.shape[0], phi_wrap_arr.shape[1]
-    origin = phi_wrap_arr[int(len_x / 2), int(len_y / 2)]
+    row_center, col_center = int(phi_wrap_arr.shape[0] / 2), int(phi_wrap_arr.shape[1] / 2)
+    c = phi_wrap_arr[-1, -1]
+    phi_unwrap_arr_sub = phi_wrap_arr[row_center:, col_center:]
+    for i in range(phi_unwrap_arr_sub.shape[0]):
+        phi_unwrap_arr_sub[i, :] -= 360
+        for j in range(1, len(phi_unwrap_arr_sub[i])):
+            if phi_unwrap_arr_sub[i, j - 1] - phi_unwrap_arr_sub[i, j] > 100:
+                phi_unwrap_arr_sub[i, j:] -= 360
 
-    arr = phi_wrap_arr
+    phi_unwrap_arr_sub_lr = np.fliplr(phi_unwrap_arr_sub)
+    phi_unwrap_arr_sub_h = np.hstack((phi_unwrap_arr_sub_lr, phi_unwrap_arr_sub))
+    phi_unwrap_arr_sub_ud = np.flipud(phi_unwrap_arr_sub_h)
+    phi_unwrap_arr = np.vstack((phi_unwrap_arr_sub_ud, phi_unwrap_arr_sub_h))
 
-    phi_wrap_arr = arr
+    print(phi_unwrap_arr.shape)  # 输出(21, 21)
+    # row_sub_wrap = phi_wrap_arr_sub[0, :]
+    # row_sub_unwrap = row_sub_wrap.copy()
+    # row_sub_unwrap -= 360
+    # for i in range(1, len(row_sub_unwrap)):
+    #     if row_sub_unwrap[i - 1] - row_sub_unwrap[i] > 100:
+    #         row_sub_unwrap[i:] -= 360
+    cnt = 0
 
     # cnt = 0
     # phi_last = 0
@@ -22,6 +39,13 @@ def phase_unwrap(phi_wrap_arr):
     #     for j in range(len_y):
 
     return phi_wrap_arr
+
+
+def phase_wrap(phi_arr):
+    num = int(np.max(phi_arr) / 360)
+    phi_arr -= num * 360
+    phi_arr[phi_arr < -750] += 360
+    return phi_arr
 
 
 def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_num=40, beam_theta=0, beam_phi=0):
@@ -73,7 +97,8 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
 
     plt.subplot(223)
     phi_arr = -phi_arr_spd + phi_arr_pp
-    phi_arr = shrink(phi_arr)
+    # phi_arr = shrink(phi_arr)
+    phi_arr = phase_wrap(phi_arr)
     plt.imshow(shrink(phi_arr), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [element number]")
@@ -100,9 +125,9 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     plt.title("Phase Distribution on the Continuous Aperture")
 
     plt.savefig(r'../../img/system/aperture_phase_distribution.png')
-    plt.show()
+    # plt.show()
 
-    phi_arr = phase_unwrap(phi_arr)
+    # phi_arr = phase_unwrap(phi_arr)
 
     return phi_arr
 
