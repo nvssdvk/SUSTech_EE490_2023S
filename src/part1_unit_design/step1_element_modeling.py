@@ -6,7 +6,7 @@ import cst.interface
 line_break = '\n'
 
 if __name__ == '__main__':
-    my_project_name = f'part1_unit_design.cst'
+    my_project_name = f'unit.cst'
     my_project_path = os.path.abspath(f'../../cst/{my_project_name}')
     my_de = cst.interface.DesignEnvironment()
     my_mws = my_de.new_mws()
@@ -29,7 +29,6 @@ if __name__ == '__main__':
 
     header = "use template: FSS"
     vbacode = [
-
         'With Units',
         '    .SetUnit "Length", "mm"',
         '    .SetUnit "Frequency", "GHz"',
@@ -80,28 +79,6 @@ if __name__ == '__main__':
         'MakeSureParameterExists "phi", "0"',
         'SetParameterDescription "phi", "spherical angle of incident plane wave"',
 
-        'With Boundary',
-        '     .Xmin "unit part1_unit_design"',
-        '     .Xmax "unit part1_unit_design"',
-        '     .Ymin "unit part1_unit_design"',
-        '     .Ymax "unit part1_unit_design"',
-        '     .Zmin "expanded open"',
-        '     .Zmax "expanded open"',
-        '     .Xsymmetry "none"',
-        '     .Ysymmetry "none"',
-        '     .Zsymmetry "none"',
-        '     .XPeriodicShift "0.0"',
-        '     .YPeriodicShift "0.0"',
-        '     .ZPeriodicShift "0.0"',
-        '     .PeriodicUseConstantAngles "False"',
-        '     .SetPeriodicBoundaryAngles "theta", "phi"',
-        '     .SetPeriodicBoundaryAnglesDirection "inward"',
-        '     .UnitCellFitToBoundingBox "True"',
-        '     .UnitCellDs1 "0.0"',
-        '     .UnitCellDs2 "0.0"',
-        '     .UnitCellAngle "90.0"',
-        'End With',
-
         'With Mesh',
         '     .MeshType "Tetrahedral"',
         'End With',
@@ -136,12 +113,12 @@ if __name__ == '__main__':
     add_para(f'h', f'2')
     add_para(f'hf', f'lambda/2')
 
-    header = "define material: PLA/material1"
+    header = "define material: material1/PLA"
     vbacode = [
         'With Material ',
         '     .Reset ',
-        '     .Name "material1"',
-        '     .Folder "PLA"',
+        '     .Name "PLA"',
+        '     .Folder "material1"',
         '     .Rho "0.0"',
         '     .ThermalType "Normal"',
         '     .ThermalConductivity "0"',
@@ -208,12 +185,12 @@ if __name__ == '__main__':
     vbacode = line_break.join(vbacode)
     add_to_history(header, vbacode)
 
-    header = "define curve 3dpolygon: curve1:buttom"
+    header = "define curve 3dpolygon: curve1:bottom"
     vbacode = [
         'With Polygon3D ',
         '     .Reset ',
         '     .Version 10 ',
-        '     .Name "buttom" ',
+        '     .Name "bottom" ',
         '     .Curve "curve1" ',
         '     .Point "-b/2", "-b/2", "0" ',
         '     .Point "b/2", "-b/2", "0" ',
@@ -246,12 +223,6 @@ if __name__ == '__main__':
     vbacode = line_break.join(vbacode)
     add_to_history(header, vbacode)
 
-    # header = "new component: componenti"
-    # vbacode = [
-    #     'Component.New "component1"'
-    # ]
-    # add_to_history(header, vbacode)
-
     header = "define extrudeprofile: component1:solid3"
     vbacode = [
         'With ExtrudeCurve',
@@ -263,7 +234,7 @@ if __name__ == '__main__':
         '     .Twistangle "0.0" ',
         '     .Taperangle "0.0" ',
         '     .DeleteProfile "True" ',
-        '     .Curve "curve1:buttom" ',
+        '     .Curve "curve1:bottom" ',
         '     .Create',
         'End With',
         '',
@@ -298,11 +269,11 @@ if __name__ == '__main__':
     vbacode = 'Pick.PickFaceFromPoint "component1:solid4", "0", "0", "h"'
     add_to_history(header, vbacode)
 
-    header = "define loft: component1:part1_unit_design"
+    header = "define loft: component1:cell"
     vbacode = [
         'With Loft ',
         '     .Reset ',
-        '     .Name "part1_unit_design" ',
+        '     .Name "cell" ',
         '     .Component "component1" ',
         '     .Material "PLA/material1" ',
         '     .Tangency "0.0" ',
@@ -314,16 +285,16 @@ if __name__ == '__main__':
     vbacode = line_break.join(vbacode)
     add_to_history(header, vbacode)
 
-    header = "boolean add shapes: component1:solid3, componenti:part1_unit_design"
-    vbacode = 'Solid.Add "component1:solid3", "component1:part1_unit_design"'
+    header = "boolean add shapes: component1:solid3, componenti:cell"
+    vbacode = 'Solid.Add "component1:solid3", "component1:cell"'
     add_to_history(header, vbacode)
 
     header = "boolean add shapes: component1:solid4, component1:solid3"
     vbacode = 'Solid.Add "component1:solid4", "component1:solid3"'
     add_to_history(header, vbacode)
 
-    header = "rename block: component1:solid4 to: component1:part1_unit_design"
-    vbacode = 'Solid.Rename "component1:solid4", "part1_unit_design"'
+    header = "rename block: component1:solid4 to: component1:cell"
+    vbacode = 'Solid.Rename "component1:solid4", "cell"'
     add_to_history(header, vbacode)
 
     header = "define frequency range"
@@ -333,10 +304,10 @@ if __name__ == '__main__':
     header = "define boundaries"
     vbacode = [
         'With Boundary',
-        '     .Xmin "unit part1_unit_design"',
-        '     .Xmax "unit part1_unit_design"',
-        '     .Ymin "unit part1_unit_design"',
-        '     .Ymax "unit part1_unit_design"',
+        '     .Xmin "unit cell"',
+        '     .Xmax "unit cell"',
+        '     .Ymin "unit cell"',
+        '     .Ymax "unit cell"',
         '     .Zmin "electric"',
         '     .Zmax "expanded open"',
         '     .Xsymmetry "none"',
