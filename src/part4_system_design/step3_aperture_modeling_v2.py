@@ -284,19 +284,90 @@ def bool_add(modeler, path1, path2):
 
 def modeling_unit_main(modeler, row, col, position_bottom_center, a, b, h, e):
     x, y, z = position_bottom_center
-    modeling_bottom(modeler, row, col, xmin=x - b / 2, xmax=x + b / 2, ymin=y - b / 2, ymax=y + b / 2, z=z)
-    modeling_top(modeler, row, col, xmin=x - a / 2, xmax=x + a / 2, ymin=y - a / 2, ymax=y + a / 2, z=z + h)
-    extrude_bottom(modeler, row, col, pla='pla_{:.2f}'.format(e))
-    extrude_top(modeler, row, col, pla='pla_{:.2f}'.format(e))
-    pick_face(modeler, "component_{:d}_{:d}:solid_bottom".format(row, col), x, y, z)
-    pick_face(modeler, "component_{:d}_{:d}:solid_top".format(row, col), x, y, z + h)
-    loft(modeler, row, col, pla='pla_{:.2f}'.format(e))
-    bool_add(modeler, "component_{:d}_{:d}:cell".format(row, col),
-             "component_{:d}_{:d}:solid_bottom".format(row, col))
-    bool_add(modeler, "component_{:d}_{:d}:cell".format(row, col),
-             "component_{:d}_{:d}:solid_top".format(row, col))
-
-    aveds = 45
+    header = "modeling unit at row {:d}, col {:d}".format(row, col)
+    vbacode=[
+        'With Polygon3D ',
+        '     .Reset ',
+        '     .Version 10 ',
+        '     .Name "bottom" ',
+        '     .Curve "curve_{:d}_{:d}" '.format(row, col),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x - b / 2, y - b / 2, z),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x + b / 2, y - b / 2, z),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x + b / 2, y + b / 2, z),
+        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(x - b / 2, y + b / 2, z),
+        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(x - b / 2, y - b / 2, z),
+        '     .Create ',
+        'End With',
+        '',
+        '',
+        'With Polygon3D ',
+        '     .Reset ',
+        '     .Version 10 ',
+        '     .Name "top" ',
+        '     .Curve "curve_{:d}_{:d}" '.format(row, col),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x - a / 2, y - a / 2, z + h),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x + a / 2, y - a / 2, z + h),
+        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(x + a / 2, y + a / 2, z + h),
+        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(x - a / 2, y + a / 2, z + h),
+        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(x - a / 2, y - a / 2, z + h),
+        '     .Create ',
+        'End With',
+        '',
+        '',
+        'With ExtrudeCurve',
+        '     .Reset ',
+        '     .Name "solid_bottom" ',
+        '     .Component " component_{:d}_{:d}" '.format(row, col),
+        '     .Material "material1/{:s}" '.format('pla_{:.2f}'.format(e)),
+        '     .Thickness "0.0" ',
+        '     .Twistangle "0.0" ',
+        '     .Taperangle "0.0" ',
+        '     .DeleteProfile "True" ',
+        '     .Curve " curve_{:d}_{:d}:bottom" '.format(row, col),
+        '     .Create',
+        'End With',
+        '',
+        '',
+        'With ExtrudeCurve',
+        '     .Reset ',
+        '     .Name "solid_top" ',
+        '     .Component " component_{:d}_{:d}" '.format(row, col),
+        '     .Material "material1/{:s}" '.format('pla_{:.2f}'.format(e)),
+        '     .Thickness "0.0" ',
+        '     .Twistangle "0.0" ',
+        '     .Taperangle "0.0" ',
+        '     .DeleteProfile "True" ',
+        '     .Curve " curve_{:d}_{:d}:top" '.format(row, col),
+        '     .Create',
+        'End With',
+        '',
+        '',
+        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component_{:d}_{:d}:solid_bottom".format(row, col), x, y, z),
+        '',
+        '',
+        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component_{:d}_{:d}:solid_top".format(row, col), x, y, z+h),
+        '',
+        '',
+        'With Loft ',
+        '     .Reset ',
+        '     .Name "cell" ',
+        '     .Component "component_{:d}_{:d}" '.format(row, col),
+        '     .Material "material1/{:s}" '.format('pla_{:.2f}'.format(e)),
+        '     .Tangency "0.0" ',
+        '     .Minimizetwist "true" ',
+        '     .CreateNew ',
+        'End With',
+        '',
+        '',
+        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col), "component_{:d}_{:d}:solid_bottom".format(row, col)),
+        '',
+        '',
+        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col), "component_{:d}_{:d}:solid_top".format(row, col)),
+        '',
+        '',
+    ]
+    vbacode = line_break.join(vbacode)
+    add_to_history(modeler, header, vbacode)
 
 
 if __name__ == "__main__":
@@ -330,7 +401,7 @@ if __name__ == "__main__":
     cnt = 0
     for i in range(unit_num):
         zoom(my_modeler)
-        time.sleep(30)
+        time.sleep(10)
         for j in range(unit_num):
             b = 15
             a, h, e = aperture_para[cnt, :]
