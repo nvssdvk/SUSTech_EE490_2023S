@@ -6,6 +6,18 @@ import numpy as np
 
 
 def get_score(phase, data):
+    def weight(a, h, e):
+        density = 1.25  # g/cm**3
+        b = 15
+        vf = np.zeros_like(e)
+        vf[e == 1.24] = 0.18
+        vf[e == 2.25] = 0.7
+        vf[e == 2.53] = 0.73
+        vf[e == 2.72] = 1
+        volume = 1 / 3 * (a ** 2 + a * b + b ** 2) * h
+        weight = volume * density * vf / 1e3
+        return weight
+
     w_phase = 0.7
     w_weight = 0.3
 
@@ -28,19 +40,6 @@ def get_score(phase, data):
     return out
 
 
-def weight(a, h, e):
-    density = 1.25  # g/cm**3
-    b = 15
-    vf = np.zeros_like(e)
-    vf[e == 1.24] = 0.18
-    vf[e == 2.25] = 0.7
-    vf[e == 2.53] = 0.73
-    vf[e == 2.72] = 1
-    volume = 1 / 3 * (a ** 2 + a * b + b ** 2) * h
-    weight = volume * density * vf / 1e3
-    return weight
-
-
 if __name__ == "__main__":
     data_pred = pd.read_csv(r"../../data/dataset/pred_set.csv", header=0, engine="c").values
     data_aperture = pd.read_csv(r"../../data/dataset/aperture_dist.csv", header=0, engine="c").values
@@ -49,7 +48,6 @@ if __name__ == "__main__":
     df_data = np.zeros([unit_num * unit_num, 9])
     df_data[:, 0:3] = data_aperture
 
-    phases = data_aperture[:, 2]
     id_data = 0
     for i in range(unit_num):
         for j in range(unit_num):
