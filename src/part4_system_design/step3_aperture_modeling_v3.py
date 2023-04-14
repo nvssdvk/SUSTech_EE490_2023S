@@ -167,125 +167,15 @@ def set_boundaries(modeler):
     add_to_history(modeler, header, vbacode)
 
 
-def modeling_bottom(modeler, row, col, xmin, xmax, ymin, ymax, z):
-    header = "define curve 3dpolygon: curve_{:d}_{:d}:bottom".format(row, col)
-    vbacode = [
-        'With Polygon3D ',
-        '     .Reset ',
-        '     .Version 10 ',
-        '     .Name "bottom" ',
-        '     .Curve "curve_{:d}_{:d}" '.format(row, col),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmin, ymin, z),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmax, ymin, z),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmax, ymax, z),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(xmin, ymax, z),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(xmin, ymin, z),
-        '     .Create ',
-        'End With'
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
-
-
-def modeling_top(modeler, row, col, xmin, xmax, ymin, ymax, z):
-    header = "define curve 3dpolygon: curve_{:d}_{:d}:top".format(row, col)
-    vbacode = [
-        'With Polygon3D ',
-        '     .Reset ',
-        '     .Version 10 ',
-        '     .Name "top" ',
-        '     .Curve "curve_{:d}_{:d}" '.format(row, col),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmin, ymin, z),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmax, ymin, z),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(xmax, ymax, z),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(xmin, ymax, z),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(xmin, ymin, z),
-        '     .Create ',
-        'End With'
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
-
-
-def extrude_bottom(modeler, row, col, pla):
-    header = "define extrudeprofile: component_{:d}_{:d}:solid_bottom".format(row, col)
-    vbacode = [
-        'With ExtrudeCurve',
-        '     .Reset ',
-        '     .Name "solid_bottom" ',
-        '     .Component " component_{:d}_{:d}" '.format(row, col),
-        '     .Material "material1/{:s}" '.format(pla),
-        '     .Thickness "0.0" ',
-        '     .Twistangle "0.0" ',
-        '     .Taperangle "0.0" ',
-        '     .DeleteProfile "True" ',
-        '     .Curve " curve_{:d}_{:d}:bottom" '.format(row, col),
-        '     .Create',
-        'End With',
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
-
-
-def extrude_top(modeler, row, col, pla):
-    header = "define extrudeprofile: component_{:d}_{:d}:solid_top".format(row, col)
-    vbacode = [
-        'With ExtrudeCurve',
-        '     .Reset ',
-        '     .Name "solid_top" ',
-        '     .Component " component_{:d}_{:d}" '.format(row, col),
-        '     .Material "material1/{:s}" '.format(pla),
-        '     .Thickness "0.0" ',
-        '     .Twistangle "0.0" ',
-        '     .Taperangle "0.0" ',
-        '     .DeleteProfile "True" ',
-        '     .Curve " curve_{:d}_{:d}:top" '.format(row, col),
-        '     .Create',
-        'End With',
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
-
-
-def pick_face(modeler, path, x, y, z):
-    header = "pick face"
-    vbacode = 'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format(path, x, y, z)
-    add_to_history(modeler, header, vbacode)
-
-
-def loft(modeler, row, col, pla):
-    header = "define loft: component_{:d}_{:d}:cell".format(row, col)
-    vbacode = [
-        'With Loft ',
-        '     .Reset ',
-        '     .Name "cell" ',
-        '     .Component "component_{:d}_{:d}" '.format(row, col),
-        '     .Material "material1/{:s}" '.format(pla),
-        '     .Tangency "0.0" ',
-        '     .Minimizetwist "true" ',
-        '     .CreateNew ',
-        'End With',
-    ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
-
-
 def zoom(modeler):
     header = "zoom"
     vbacode = 'Plot.ZoomToStructure'
     add_to_history(modeler, header, vbacode)
 
 
-def bool_add(modeler, path1, path2):
-    header = "boolean add shapes: {:s}, {:s}".format(path1, path2)
-    vbacode = 'Solid.Add "{:s}", "{:s}"'.format(path1, path2)
-    add_to_history(modeler, header, vbacode)
-
-
-def modeling_unit_main(modeler, row, col, position_bottom_center, a, b, h, e):
+def modeling_unit_main(row, col, position_bottom_center, a, b, h, e):
     x, y, z = position_bottom_center
-    header = "modeling unit at row {:d}, col {:d}".format(row, col)
-    vbacode=[
+    vbacode = [
         'With Polygon3D ',
         '     .Reset ',
         '     .Version 10 ',
@@ -342,10 +232,12 @@ def modeling_unit_main(modeler, row, col, position_bottom_center, a, b, h, e):
         'End With',
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component_{:d}_{:d}:solid_bottom".format(row, col), x, y, z),
+        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format(
+            "component_{:d}_{:d}:solid_bottom".format(row, col), x, y, z),
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component_{:d}_{:d}:solid_top".format(row, col), x, y, z+h),
+        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format(
+            "component_{:d}_{:d}:solid_top".format(row, col), x, y, z + h),
         '',
         '',
         'With Loft ',
@@ -359,15 +251,17 @@ def modeling_unit_main(modeler, row, col, position_bottom_center, a, b, h, e):
         'End With',
         '',
         '',
-        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col), "component_{:d}_{:d}:solid_bottom".format(row, col)),
+        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col),
+                                          "component_{:d}_{:d}:solid_bottom".format(row, col)),
         '',
         '',
-        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col), "component_{:d}_{:d}:solid_top".format(row, col)),
+        'Solid.Add "{:s}", "{:s}"'.format("component_{:d}_{:d}:cell".format(row, col),
+                                          "component_{:d}_{:d}:solid_top".format(row, col)),
         '',
         '',
     ]
-    vbacode = line_break.join(vbacode)
-    add_to_history(modeler, header, vbacode)
+    # vbacode = line_break.join(vbacode)
+    return vbacode
 
 
 if __name__ == "__main__":
@@ -397,19 +291,22 @@ if __name__ == "__main__":
     y_arr = np.arange(-unit_num / 2 * dy + unit_len / 2, unit_num / 2 * dy + unit_len / 2, dy)
     xx, yy = np.meshgrid(x_arr, y_arr)
 
-    time_start = time.time()
+    vbacode = ['']
     cnt = 0
     for i in range(unit_num):
-        zoom(my_modeler)
         # time.sleep(10)
         for j in range(unit_num):
             b = 15
             a, h, e = aperture_para[cnt, :]
             position_bottom_center = [xx[i, j], yy[i, j], 0]
-            modeling_unit_main(my_modeler, i, j, position_bottom_center, a, b, h, e)
-            time_end = time.time()
-            print("Modeling the cell in row {:d}, column {:d}, The total time is {:.1f} seconds"
-                  .format(i + 1, j + 1, time_end - time_start), end='\r')
+            temp_vbacode = modeling_unit_main(i, j, position_bottom_center, a, b, h, e)
+            vbacode += temp_vbacode
             cnt += 1
-
+    header = "modeling aperture"
+    vbacode = line_break.join(vbacode)
+    asdv = 0
+    time_start = time.time()
+    add_to_history(my_modeler, header, vbacode)
+    time_end = time.time()
+    print("Modeling the aperture, the total time is {:.1f} seconds".format(time_end - time_start), end='\r')
     # my_mws.save()
