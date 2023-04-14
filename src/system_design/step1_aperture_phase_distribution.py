@@ -125,9 +125,20 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     plt.title("Phase Distribution on the Continuous Aperture")
 
     plt.savefig(r'../../img/system/aperture_phase_distribution.png')
-    # plt.show()
+    plt.show()
 
-    # phi_arr = phase_unwrap(phi_arr)
+    df_name = ['row', 'col', 'phase']
+    df_data = np.zeros([unit_num * unit_num, 3])
+    df_id = 0
+    for i in range(unit_num):
+        for j in range(unit_num):
+            df_data[df_id, 0] = i
+            df_data[df_id, 1] = j
+            df_data[df_id, 2] = phi_arr[i, j]
+            df_id += 1
+
+    df = pd.DataFrame(columns=df_name, data=df_data)
+    df.to_csv(r'../../data/dataset/aperture_dist.csv', encoding='utf-8', index=False)
 
     return phi_arr
 
