@@ -304,7 +304,7 @@ if __name__ == "__main__":
             cnt += 1
     header = "modeling aperture"
     vbacode = line_break.join(vbacode)
-    asdv = 0
+
     time_start = time.time()
     add_to_history(my_modeler, header, vbacode)
     time_end = time.time()
