@@ -50,7 +50,7 @@ def find_best_h(wl, q, unit_num, unit_len=None):
     plt.grid()
     plt.legend()
     plt.title("Efficiency")
-    plt.savefig(r'../../img/feed/efficiency.png')
+    plt.savefig(r'../../img/part3_feed/efficiency.png')
     plt.show()
 
     id_best = np.where(e_antenna == np.max(e_antenna))[0].item()
@@ -101,7 +101,7 @@ def find_best_q(file_path):
     plt.xlim(0, 20)
     plt.title("Loss of cos-q Model")
     plt.grid()
-    plt.savefig("../../img/feed/q.png")
+    plt.savefig("../../img/part3_feed/q.png")
     plt.show()
 
     print("Best q is {:.1f}".format(q_best))

@@ -25,7 +25,7 @@ def phase_distribution():
     print("wave length:{:.2f}mm".format(wl * 1e3))
     k = 2 * np.pi / wl  # 波数
     # h =
-    # feed = [-91.88 / 1e3, 0, 342.9 / 1e3]
+    # part3_feed = [-91.88 / 1e3, 0, 342.9 / 1e3]
     feed = [0, 0, 0.17]
     N = 40  # 反射面共有N*N个单元
 
