@@ -190,7 +190,7 @@ class M2LP(nn.Module):
 
 def train(tr_set, ve_set, model, config, device):
     optimizer = torch.optim.Adam(model.parameters(), lr=config['learning_rate'])
-    # optimizer = torch.optim.SGD(neural_newwork.parameters(), lr=config['learning_rate'], momentum=0.5)
+    # optimizer = torch.optim.SGD(my_model.parameters(), lr=config['learning_rate'], momentum=0.5)
     scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
 
     n_epochs = config['n_epochs']
@@ -227,7 +227,7 @@ def train(tr_set, ve_set, model, config, device):
 
         if ver_los < min_loss:
             min_loss = ver_los
-            print(f'Saving neural_newwork (epoch = {epoch + 1}, loss = {min_loss})')
+            print(f'Saving part2_neural_newwork (epoch = {epoch + 1}, loss = {min_loss})')
             torch.save(model.state_dict(), config['model_path'])
             early_stop_cnt = 0
         else:
@@ -316,7 +316,7 @@ if __name__ == "__main__":
     config = {
         # dataset
         'batch_size': 500,
-        # neural_newwork
+        # my_model
         'block_num': 3,
         'first_dim': 64,  # 16,128,
         'alpha': 0.04,
@@ -327,7 +327,7 @@ if __name__ == "__main__":
         'early_stop': 200,
         'min_loss': 1000.,
         # path
-        'model_path': 'models/neural_newwork.pth',
+        'model_path': r'./models/model.pth',
         'tr_path': r'../../data/dataset/tr_set_unwrap.csv',
         've_path': r'../../data/dataset/ve_set_unwrap.csv',
         'tt_path': r'../../data/dataset/tt_set.csv'
@@ -339,19 +339,19 @@ if __name__ == "__main__":
     ve_set = prep_dataloader(config['ve_path'], 'verify', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
 
-    # neural_newwork = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-    #              first_dim=config['first_dim']).to(device)
-    # model_loss, model_loss_record = train(tr_set, ve_set, neural_newwork, config, device)
+    # my_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+    #                 first_dim=config['first_dim']).to(device)
+    # model_loss, model_loss_record = train(tr_set, ve_set, my_model, config, device)
     # # # %%
     # plot_loss(model_loss_record)
-    # del neural_newwork
+    # del my_model
 
-    model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-                 first_dim=config['first_dim']).to(device)
+    my_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+                    first_dim=config['first_dim']).to(device)
     ckpt = torch.load(config['model_path'], map_location='cpu')
-    model.load_state_dict(ckpt)
-    plot_pred(ve_set, model, device)
+    my_model.load_state_dict(ckpt)
+    plot_pred(ve_set, my_model, device)
 
     # # %%
-    preds = test(tt_set, model, device)
+    preds = test(tt_set, my_model, device)
     save_pred(preds, '../data/dataset/pred.csv')

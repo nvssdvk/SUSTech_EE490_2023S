@@ -48,7 +48,7 @@ def change_para(modeler, param_name, para_value):
 
 
 if __name__ == '__main__':
-    # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\data\RA_23_03_09\element.cst")
+    # my_project_path = os.path.abspath(r"D:\User\Course\EE490.2023S\src\data\RA_23_03_09\part1_unit_design.cst")
     my_project_path = r"../../cst/cell_v4.cst"
 
     num, ids, a, h, e = read_data()

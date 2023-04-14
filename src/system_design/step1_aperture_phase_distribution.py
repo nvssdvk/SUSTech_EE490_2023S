@@ -80,8 +80,8 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     phi_arr_spd = phi_arr_spd * 180 / np.pi
     plt.imshow((shrink(phi_arr_spd)), cmap='hot', interpolation='nearest')
     plt.colorbar()
-    plt.xlabel("x-axis [element number]")
-    plt.ylabel("y-axis [element number]")
+    plt.xlabel("x-axis [part1_unit_design number]")
+    plt.ylabel("y-axis [part1_unit_design number]")
     plt.title("Spatial Delay")
 
     plt.subplot(222)
@@ -91,8 +91,8 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     phi_arr_pp = phi_arr_pp * 180 / np.pi
     plt.imshow((shrink(phi_arr_pp)), cmap='hot', interpolation='nearest')
     plt.colorbar()
-    plt.xlabel("x-axis [element number]")
-    plt.ylabel("y-axis [element number]")
+    plt.xlabel("x-axis [part1_unit_design number]")
+    plt.ylabel("y-axis [part1_unit_design number]")
     plt.title("Progressive Phase")
 
     plt.subplot(223)
@@ -101,8 +101,8 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     phi_arr = phase_wrap(phi_arr)
     plt.imshow(shrink(phi_arr), cmap='hot', interpolation='nearest')
     plt.colorbar()
-    plt.xlabel("x-axis [element number]")
-    plt.ylabel("y-axis [element number]")
+    plt.xlabel("x-axis [part1_unit_design number]")
+    plt.ylabel("y-axis [part1_unit_design number]")
     plt.title("Phase Distribution on the Reflectarray Antenna")
 
     plt.subplot(224)

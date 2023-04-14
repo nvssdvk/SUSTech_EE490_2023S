@@ -31,5 +31,5 @@ af4_norm = np.abs(af4) ** 2 / np.max(np.abs(af4) ** 2)
 # 绘制方向图（极坐标）
 plt.figure()
 plt.polar(theta, af4_norm)
-plt.title('Directional pattern of a four-element array')
+plt.title('Directional pattern of a four-part1_unit_design array')
 plt.show()
