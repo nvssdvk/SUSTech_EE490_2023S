@@ -74,10 +74,10 @@ if __name__ == '__main__':
         s11 = my_project.get_3d().get_result_item(r"1D Results\S-Parameters\S1,1")
         num = len(s11)
         s11_data = np.array(s11.get_data())
-        s11_freq = np.array(np.abs(s11_data[:, 0]), dtype=float).reshape([num, 1])
-        s11_s11 = np.array(s11_data[:, 1], dtype=complex).reshape([num, 1])
-        s11_mag = np.abs(s11_s11).reshape([num, 1])
-        s11_phase = np.angle(s11_s11, deg=True).reshape([num, 1])
+        s11_freq = np.array(np.abs(s11_data[:, 0]), dtype=float).reshape(-1, 1)
+        s11_s11 = np.array(s11_data[:, 1], dtype=complex).reshape(-1, 1)
+        s11_mag = np.abs(s11_s11).reshape(-1, 1)
+        s11_phase = np.angle(s11_s11, deg=True).reshape(-1, 1)
 
         df_name = ["freq", "mag", "phase"]
         df_data = np.zeros((num, 3))

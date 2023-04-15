@@ -64,8 +64,8 @@ def find_best_h(wl, q, unit_num, unit_len=None):
 def find_best_q(file_path):
     data = pd.read_table(file_path, sep="\s+").values
     pattern = data[:, 2] - np.max(data[:, 2])
-    ang = np.linspace(-180, 180, 361, dtype=int).reshape([361, 1])
-    mag = np.concatenate((pattern[::-1], pattern[1::])).reshape([361, 1])
+    ang = np.linspace(-180, 180, 361, dtype=int).reshape(-1, 1)
+    mag = np.concatenate((pattern[::-1], pattern[1::])).reshape(1, 1)
 
     plt.figure(figsize=(19.2, 7.2))
     plt.subplot(121)
@@ -111,8 +111,8 @@ def find_best_q(file_path):
 # def find_best_q(file_path):
 #     data = pd.read_table(file_path, sep="\s+").values
 #     pattern = data[:, 2] - np.max(data[:, 2])
-#     ang = np.linspace(-180, 180, 361, dtype=int).reshape([361, 1])
-#     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape([361, 1])
+#     ang = np.linspace(-180, 180, 361, dtype=int).reshape(-1, 1)
+#     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape(-1,1)
 #
 #     plt.figure()
 #     plt.plot(ang, mag, color="r", label="CST")

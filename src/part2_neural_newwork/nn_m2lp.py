@@ -50,7 +50,7 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
         model.eval()
         preds, targets = [], []
         for x, y in ve_set:
-            x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
+            x, y = x.reshape(-1, 3, 1).to(device), y.reshape(-1, 1, 1).to(device)
             with torch.no_grad():
                 pred = model(x)
                 preds.append(pred.detach().cpu())
@@ -58,8 +58,8 @@ def plot_pred(ve_set, model, device, preds=None, targets=None):
         preds = torch.cat(preds, dim=0).numpy()
         targets = torch.cat(targets, dim=0).numpy()
 
-    preds = preds.reshape(len(preds), 1)
-    targets = targets.reshape(len(targets), 1)
+    preds = preds.reshape(-1, 1)
+    targets = targets.reshape(-1, 1)
 
     # preds = np.rad2deg(preds)
     # targets = np.rad2deg(targets)
@@ -203,7 +203,7 @@ def train(tr_set, ve_set, model, config, device):
         epoch_loss = 0
         for x, y in tr_set:
             optimizer.zero_grad()
-            x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
+            x, y = x.reshape(-1, 3, 1).to(device), y.reshape(-1, 1, 1).to(device)
             pred = model(x)
             batch_loss = model.cal_loss(pred, y)
             batch_loss.backward()
@@ -217,7 +217,7 @@ def train(tr_set, ve_set, model, config, device):
         model.eval()
         ver_los = 0
         for x, y in ve_set:
-            x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
+            x, y = x.reshape(-1, 3, 1).to(device), y.reshape(-1, 1, 1).to(device)
             with torch.no_grad():
                 pred = model(x)
                 batch_loss = model.cal_loss(pred, y)
@@ -241,21 +241,6 @@ def train(tr_set, ve_set, model, config, device):
             print(f'Finished training after {epoch + 1} epochs')
 
     return min_loss, loss_record
-
-
-def verify(ve_set, model, device):
-    model.eval()
-    ver_los = 0
-    for x, y in ve_set:
-        x, y = x.reshape(len(x), 3, 1).to(device), y.reshape(len(y), 1, 1).to(device)
-        with torch.no_grad():  # disable gradient calculation
-            pred = model(x)
-            batch_loss = model.cal_loss(pred, y)
-        ver_los += batch_loss.detach().cpu().item() * len(x)  # accumulate loss
-        # loss_record['verify'].append(ver_los)
-    ver_los /= len(ve_set.dataset)
-
-    return ver_los
 
 
 def test(tt_set, model, device):
@@ -339,12 +324,12 @@ if __name__ == "__main__":
     ve_set = prep_dataloader(config['ve_path'], 'verify', config['batch_size'])
     tt_set = prep_dataloader(config['tt_path'], 'test', config['batch_size'])
 
-    # my_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
-    #                 first_dim=config['first_dim']).to(device)
-    # model_loss, model_loss_record = train(tr_set, ve_set, my_model, config, device)
-    # # # %%
-    # plot_loss(model_loss_record)
-    # del my_model
+    my_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
+                    first_dim=config['first_dim']).to(device)
+    model_loss, model_loss_record = train(tr_set, ve_set, my_model, config, device)
+    # # %%
+    plot_loss(model_loss_record)
+    del my_model
 
     my_model = M2LP(alpha=config['alpha'], input_dim=tr_set.dataset.dim, block_num=config['block_num'],
                     first_dim=config['first_dim']).to(device)
