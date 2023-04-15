@@ -42,9 +42,10 @@ def phase_unwrap(phi_wrap_arr):
 
 
 def phase_wrap(phi_arr):
-    num = int(np.max(phi_arr) / 360)
+    num = int((np.max(phi_arr) + 360) / 360)
     phi_arr -= num * 360
-    phi_arr[phi_arr < -750] += 360
+    phi_arr[phi_arr < -750] += 360 * 3
+    phi_arr[phi_arr > -53] -= 360
     return phi_arr
 
 
