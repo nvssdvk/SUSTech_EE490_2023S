@@ -36,7 +36,7 @@ def get_x(x0, max_iter=1000, loss_min=1e-5):
 
 if __name__ == "__main__":
     wl = 3e8 / 10e9
-    gain = np.power(10, 22.6 / 10)
+    gain = np.power(10, 15 / 10)
     a = 0.9 * 25.4 / 1e3
     b = 0.4 * 25.4 / 1e3
     x0 = gain / (2 * np.pi * np.sqrt(2 * np.pi))

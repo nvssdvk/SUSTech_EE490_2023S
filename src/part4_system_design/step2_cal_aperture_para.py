@@ -18,8 +18,8 @@ def get_score(phase, data):
         weight = volume * density * vf / 1e3
         return weight
 
-    w_phase = 0.7
-    w_weight = 0.3
+    w_phase = 1
+    w_weight = 0
 
     diff = np.abs(data[:, -1] - phase)
     # selected = data[diff < loss]
