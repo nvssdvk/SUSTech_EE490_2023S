@@ -170,8 +170,9 @@ if __name__ == "__main__":
     #                                  beam_phi=0)
 
     # test
-    phase_array = phase_distribution(wl=3e8 / 10e9,
-                                     feed_position=[0, 0, 0.255],
+    wl = 3e8 / 10e9
+    phase_array = phase_distribution(wl=wl,
+                                     feed_position=[0, 0, 9.5 * wl],
                                      unit_num=21,
                                      beam_theta=0,
                                      beam_phi=0)
