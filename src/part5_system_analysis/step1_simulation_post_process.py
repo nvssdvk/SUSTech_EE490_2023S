@@ -22,7 +22,7 @@ def find_best_q(file_path, img_path, q_min, q_max, three_db_range):
     with np.errstate(divide='ignore'):
         for q in q_range:
             cos_x = np.cos(ang * np.pi / 180)
-            cos_value = 10 * np.log10(np.power(cos_x, q * 2) + 1e-15)
+            cos_value = 10 * np.log10(np.power(cos_x, q) + 1e-15)
             index = np.where(q_range == q)[0].item()
             cos_model[:, index] = cos_value.flat
             p_start, p_end = center - three_db_range, center + three_db_range
@@ -56,7 +56,7 @@ def find_best_q(file_path, img_path, q_min, q_max, three_db_range):
 if __name__ == "__main__":
     q = find_best_q(file_path=r"../../data/dataset/reflectarray_pattern_10GHz.txt",
                     img_path=r"../../img/system/q.png",
-                    q_min=100, q_max=250, three_db_range=3)
+                    q_min=1, q_max=500, three_db_range=3)
 
     qf = find_best_q(file_path=r"../../data/dataset/feed_horn_pattern.txt",
                     img_path=r"../../img/feed/q.png",
@@ -67,8 +67,12 @@ if __name__ == "__main__":
                     q_min=0, q_max=50, three_db_range=30)
 
     '''
-    Best q 
+    Best q ** 2
         element: 7
         feed: 8.5
         system: 185
+    Best q
+        element: 13.5
+        feed: 17
+        system: 370
     '''
