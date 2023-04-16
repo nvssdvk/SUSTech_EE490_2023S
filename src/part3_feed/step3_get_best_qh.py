@@ -108,52 +108,6 @@ def find_best_q(file_path):
     return q_best
 
 
-# def find_best_q(file_path):
-#     data = pd.read_table(file_path, sep="\s+").values
-#     pattern = data[:, 2] - np.max(data[:, 2])
-#     ang = np.linspace(-180, 180, 361, dtype=int).reshape(-1, 1)
-#     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape(-1,1)
-#
-#     plt.figure()
-#     plt.plot(ang, mag, color="r", label="CST")
-#
-#     q_range = np.arange(start=1, stop=20, step=0.5)
-#     loss = np.zeros([len(q_range), 1])
-#     cos_model = np.zeros([361, len(q_range)])
-#     with np.errstate(divide='ignore'):
-#         for q in q_range:
-#             cos_x = np.cos(ang * np.pi / 180)
-#             cos_value = 10 * np.log10(np.power(cos_x, q * 2))
-#             index = np.where(q_range == q)[0].item()
-#             cos_model[:, index] = cos_value.flat
-#             loss[index] = 1 / 61 * np.sum(np.abs(cos_value[150:211] - mag[150:211]))
-#         for i in range(len(q_range)):
-#             if i == np.where(loss == np.min(loss))[0].item():
-#                 q_best = q_range[i]
-#                 plt.plot(ang, cos_model[:,i], label="q={:.1f}".format(q_range[i]))
-#
-#     plt.xlim(-90, 90)
-#     plt.ylim(-30, 5)
-#     plt.xlabel("Theta")
-#     plt.ylabel("Mag(dB)")
-#     plt.title("Power")
-#     plt.grid()
-#     plt.legend()
-#     plt.show()
-#
-#     plt.figure()
-#     plt.plot(q_range, loss)
-#     plt.xlabel("Theta")
-#     plt.ylabel("Mag(dB)")
-#     plt.xlim(0, 20)
-#     plt.title("Loss of cos-q Model")
-#     plt.grid()
-#     plt.show()
-#
-#     print("Best q is {:.1f}".format(q_best))
-#     return q_best
-
-
 if __name__ == "__main__":
     q = find_best_q(r"../../data/dataset/feed_horn_pattern.txt")
 
