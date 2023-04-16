@@ -197,12 +197,12 @@ if __name__ == '__main__':
 
     my_modeler = my_mws.modeler
 
-    add_para(my_modeler, f'lambda', f'300/11')
-    add_para(my_modeler, f'b', f'14')
+    add_para(my_modeler, f'wl', f'30')
+    add_para(my_modeler, f'b', f'15')
     add_para(my_modeler, f'a', f'2')
-    add_para(my_modeler, f'e', f'2.7')
+    add_para(my_modeler, f'e', f'2.72')
     add_para(my_modeler, f'h', f'2')
-    add_para(my_modeler, f'hf', f'lambda/2')
+    add_para(my_modeler, f'zmax', f'wl/4')
 
     modling_main(my_modeler)
 
