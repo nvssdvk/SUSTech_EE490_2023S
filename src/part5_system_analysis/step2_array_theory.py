@@ -10,25 +10,27 @@ def shrink(arr):
     return arr
 
 
-def cal_element_pattern(qe, uv, bv, theta=None):
-    if theta is None:
-        theta = np.arange(-179, 180, 1)
-
+def cal_element_pattern(qe, uv, bv, theta):
     element_pattern = np.power(np.clip(np.cos(theta), 1e-10, None), qe) * np.exp(1j * k * np.dot(uv, bv))
     return element_pattern
 
 
-def cal_excitation(qf, qe, uv, fv, phase):
-    r_f = np.sqrt(fv[0] ** 2 + fv[1] ** 2 + fv[2] ** 2)
-    theta_f = np.arccos(fv[2] / r_f)
-    r_e = np.sqrt(uv[0] ** 2 + uv[1] ** 2 + uv[2] ** 2)
-    if r_e == 0:
-        theta_e = 0
+def cal_excitation(qf, qe, uv, fv, phase, theta):
+    # r_f = np.linalg.norm(fv)
+    # theta_f = np.arccos(fv[2] / r_f)
+    # r_e = np.linalg.norm(uv)
+    # if r_e == 0:
+    #     theta_e = 0
+    # else:
+    #     theta_e = np.arccos(uv[2] / r_e)
+    # theta_f = theta_e = theta
+    local_v = uv - fv
+    r = np.linalg.norm(local_v)
+    if r == 0:
+        theta_f = 0
     else:
-        theta_e = np.arccos(uv[2] / r_e)
-
-    # theta_e = np.where(r_e == 0, 0, np.arccos(uv[2] / r_e))
-
+        theta_f = np.arccos(local_v[2] / r)
+    theta_e = 0
     temp_1 = np.power(np.clip(np.cos(theta_f), 1e-10, None), qf) / np.linalg.norm(uv - fv)
     temp_2 = np.exp(-1j * k * np.linalg.norm(uv - fv))
     temp_3 = np.power(np.clip(np.cos(theta_e), 1e-10, None), qe)
@@ -40,7 +42,7 @@ def cal_excitation(qf, qe, uv, fv, phase):
 
 def plot_pattern(theta, pattern):
     plt.figure()
-    plt.plot(theta, np.abs(pattern))
+    plt.plot(theta, pattern)
     plt.show()
 
 
@@ -72,10 +74,21 @@ if __name__ == "__main__":
     theta = np.arange(-179, 180, 1)
     aperture_pattern = np.zeros(len(theta), dtype=complex)
     aperture_pattern_array = np.zeros([num, num, len(theta)], dtype=complex)
+    pattern_array = np.zeros([num, num, len(theta)], dtype=complex)
+    pattern_array_0 = np.zeros([num, num], dtype=complex)
+    illumination_array = np.zeros([num, num], dtype=complex)
     for i in range(num):
         for j in range(num):
-            pattern = cal_element_pattern(qe=qe, uv=uv[i, j], bv=bv)
-            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, phase=np.deg2rad(aperture_phase[i, j]))
+            pattern = cal_element_pattern(qe=qe, uv=uv[i, j], bv=bv, theta=np.deg2rad(theta))
+            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, phase=np.deg2rad(aperture_phase[i, j]),
+                                          theta=np.deg2rad(theta))
             aperture_pattern_array[i, j] = pattern * illumination
+            pattern_array[i, j] = pattern
+            pattern_array_0[i, j] = pattern[180]
+            illumination_array[i, j] = illumination
             aperture_pattern += pattern * illumination
+    for i in range(len(aperture_pattern)):
+        aperture_pattern[i] = np.linalg.norm(aperture_pattern[i])
+    # aperture_pattern = 10 * np.log10(aperture_pattern)
+    aperture_pattern = aperture_pattern.astype(float)
     plot_pattern(theta, aperture_pattern)
