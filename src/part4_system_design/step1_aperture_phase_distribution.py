@@ -49,17 +49,18 @@ def phase_wrap(phi_arr):
     return phi_arr
 
 
+def shrink(arr):
+    edge_min = 0
+    edge_max = 360
+    arr = np.mod(arr - edge_min, edge_max - edge_min) + edge_min
+    return arr
+
+
 def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_num=40, beam_theta=0, beam_phi=0):
     if feed_position is None:
         feed_position = [0, 0, 0.17]
     if unit_len is None:
         unit_len = wl / 2
-
-    def shrink(arr):
-        edge_min = 0
-        edge_max = 360
-        arr = np.mod(arr - edge_min, edge_max - edge_min) + edge_min
-        return arr
 
     print("wave length:{:.2f}mm".format(wl * 1e3))
     k = 2 * np.pi / wl  # 波数
@@ -149,7 +150,7 @@ if __name__ == "__main__":
     # phase_array = phase_distribution(wl=3e8 / 32e9,
     #                                  feed_position=[0, 0, 170 / 1e3],
     #                                  unit_len=4.7 / 1e3,
-    #                                  unit_num=40,
+    #                                  num=40,
     #                                  beam_theta=0,
     #                                  beam_phi=0)
 
@@ -157,7 +158,7 @@ if __name__ == "__main__":
     # phase_array = phase_distribution(wl=3e8 / 32e9,
     #                                  feed_position=[-85 / 1e3, 0, 147.22 / 1e3],
     #                                  unit_len=4.7 / 1e3,
-    #                                  unit_num=40,
+    #                                  num=40,
     #                                  beam_theta=30,
     #                                  beam_phi=0)
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     # phase_array = phase_distribution(wl=3e8 / 14.25e9,
     #                                  feed_position=[-91.88 / 1e3, 0, 342.9 / 1e3],
     #                                  unit_len=10 / 1e3,
-    #                                  unit_num=36,
+    #                                  num=36,
     #                                  beam_theta=15,
     #                                  beam_phi=0)
 
@@ -173,7 +174,7 @@ if __name__ == "__main__":
     # wl = 3e8 / 10e9
     # phase_array = phase_distribution(wl=wl,
     #                                  feed_position=[0, 0, 9.5 * wl],
-    #                                  unit_num=21,
+    #                                  num=21,
     #                                  beam_theta=0,
     #                                  beam_phi=0)
 
@@ -184,3 +185,4 @@ if __name__ == "__main__":
                                      unit_num=21,
                                      beam_theta=15,
                                      beam_phi=0)
+    phase_array = shrink(phase_array)

@@ -77,7 +77,7 @@ def find_best_q(file_path):
     with np.errstate(divide='ignore'):
         for q in q_range:
             cos_x = np.cos(ang * np.pi / 180)
-            cos_value = 10 * np.log10(np.power(cos_x, q * 2) + 1e-15)
+            cos_value = 10 * np.log10(np.power(np.clip(cos_x, 1e-10, None), q * 2))
             index = np.where(q_range == q)[0].item()
             cos_model[:, index] = cos_value.flat
             loss[index] = 1 / 61 * np.sum(np.abs(cos_value[150:211] - mag[150:211]))

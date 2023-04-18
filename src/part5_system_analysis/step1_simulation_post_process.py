@@ -22,7 +22,7 @@ def find_best_q(file_path, img_path, q_min, q_max, three_db_range):
     with np.errstate(divide='ignore'):
         for q in q_range:
             cos_x = np.cos(ang * np.pi / 180)
-            cos_value = 10 * np.log10(np.power(cos_x, q * 2) + 1e-15)
+            cos_value = 10 * np.log10(np.power(np.clip(cos_x, 1e-10, None), q * 2))
             index = np.where(q_range == q)[0].item()
             cos_model[:, index] = cos_value.flat
             p_start, p_end = center - three_db_range, center + three_db_range
