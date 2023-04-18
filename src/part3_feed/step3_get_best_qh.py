@@ -112,7 +112,7 @@ def find_best_q(file_path):
 if __name__ == "__main__":
     q = find_best_q(r"../../data/dataset/feed_horn_pattern.txt")
 
-    h = find_best_h(wl=3e8 / 10e9, q=q, qe=7, unit_num=21, theta=10)
+    h = find_best_h(wl=3e8 / 10e9, q=q, qe=7, unit_num=21, theta=20)
     '''
     Phase center (0, 0, 17.0448)
     
@@ -132,7 +132,14 @@ if __name__ == "__main__":
         Spillover: 0.811
         Illumination: 0.682
         Antenna: 0.553
-        
+    
+    theta = 20
+    Best q is 8.5
+    Best Height of Feed: 9.0 wave length
+    Efficiency:
+        Spillover: 0.800
+        Illumination: 0.444
+        Antenna: 0.355
         
     theta = 30
     Best q is 8.5

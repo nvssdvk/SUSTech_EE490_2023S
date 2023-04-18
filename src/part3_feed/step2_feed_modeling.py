@@ -40,7 +40,7 @@ def set_freq_range(modeler, f_min, f_max):
     add_to_history(modeler, header, vbacode)
 
 
-def set_background(modeler, zmax=0.0):
+def set_background(modeler, zmax='zmax'):
     header = "define background"
     vbacode = [
         'With Background',
@@ -56,7 +56,7 @@ def set_background(modeler, zmax=0.0):
         '     .YminSpace "0.0"',
         '     .YmaxSpace "0.0"',
         '     .ZminSpace "0.0"',
-        '     .ZmaxSpace "{:.2f}"'.format(zmax),
+        '     .ZmaxSpace "{:s}"'.format(zmax),
         'End With',
     ]
     vbacode = line_break.join(vbacode)
@@ -100,7 +100,7 @@ def zoom(modeler):
     add_to_history(modeler, header, vbacode)
 
 
-def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
+def modeling_horn_main(modeler):
     header = 'modeling'
     vbacode = [
         'With Polygon3D ',
@@ -108,11 +108,11 @@ def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
         '     .Version 10 ',
         '     .Name "aperture_top" ',
         '     .Curve "curve1" ',
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(-a / 2, -b / 2, wg_h + h),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(a / 2, - b / 2, wg_h + h),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(a / 2, b / 2, wg_h + h),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(-a / 2, b / 2, wg_h + h),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(-a / 2, - b / 2, wg_h + h),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('-a / 2', '-b / 2',' wg_h + h'),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('a / 2', '- b / 2', 'wg_h + h'),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('a / 2', 'b / 2',' wg_h + h'),
+        '     .Point "{:s}", "{:s}","{:s}" '.format('-a / 2', 'b / 2', 'wg_h + h'),
+        '     .Point "{:s}", "{:s}","{:s}" '.format('-a / 2', '- b / 2', 'wg_h + h'),
         '     .Create ',
         'End With',
         '',
@@ -122,11 +122,11 @@ def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
         '     .Version 10 ',
         '     .Name "aperture_bottom" ',
         '     .Curve "curve1" ',
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(-wg_a / 2, -wg_b / 2, wg_h),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(wg_a / 2, - wg_b / 2, wg_h),
-        '     .Point "{:.2f}", "{:.2f}", "{:.2f}" '.format(wg_a / 2, wg_b / 2, wg_h),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(-wg_a / 2, wg_b / 2, wg_h),
-        '     .Point "{:.2f}", "{:.2f}","{:.2f}" '.format(-wg_a / 2, - wg_b / 2, wg_h),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('-wg_a / 2', '-wg_b / 2', 'wg_h'),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('wg_a / 2', '- wg_b / 2', 'wg_h'),
+        '     .Point "{:s}", "{:s}", "{:s}" '.format('wg_a / 2', 'wg_b / 2', 'wg_h'),
+        '     .Point "{:s}", "{:s}","{:s}" '.format('-wg_a / 2', 'wg_b / 2', 'wg_h'),
+        '     .Point "{:s}", "{:s}","{:s}" '.format('-wg_a / 2', '- wg_b / 2', 'wg_h'),
         '     .Create ',
         'End With',
         '',
@@ -153,12 +153,12 @@ def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
         'End With',
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format(
-            "component1:aperture_bottom", 0, 0, wg_h),
+        'Pick.PickFaceFromPoint  "{:s}", "{:s}", "{:s}", "{:s}"'.format(
+            "component1:aperture_bottom", '0', '0', 'wg_h'),
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format(
-            "component1:aperture_top", 0, 0, wg_h + h),
+        'Pick.PickFaceFromPoint  "{:s}", "{:s}", "{:s}", "{:s}"'.format(
+            "component1:aperture_top",'0', '0', 'wg_h + h'),
         '',
         '',
         'With Loft ',
@@ -183,9 +183,9 @@ def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
         '     .Name "waveguide" ',
         '     .Component "component1" ',
         '     .Material "PEC" ',
-        '     .Xrange "{:.2f}", "{:.2f}" '.format(-wg_a / 2, wg_a / 2),
-        '     .Yrange "{:.2f}", "{:.2f}" '.format(-wg_b / 2, wg_b / 2),
-        '     .Zrange "{:.2f}", "{:.2f}" '.format(0, wg_h),
+        '     .Xrange "{:s}", "{:s}" '.format('-wg_a / 2', 'wg_a / 2'),
+        '     .Yrange "{:s}", "{:s}" '.format('-wg_b / 2', 'wg_b / 2'),
+        '     .Zrange "{:s}", "{:s}" '.format('0', 'wg_h'),
         '     .Create',
         'End With',
         '',
@@ -196,13 +196,13 @@ def modeling_horn_main(modeler, wg_a, wg_b, wg_h, a, b, h, thickness):
         'Solid.Rename "component1:aperture", "horn"',
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component1:horn", 0, 0, 0),
+        'Pick.PickFaceFromPoint  "{:s}", "{:s}", "{:s}", "{:s}"'.format("component1:horn", '0', '0', '0'),
         '',
         '',
-        'Pick.PickFaceFromPoint  "{:s}", "{:.2f}", "{:.2f}", "{:.2f}"'.format("component1:horn", 0, 0, wg_h + h),
+        'Pick.PickFaceFromPoint  "{:s}", "{:s}", "{:s}", "{:s}"'.format("component1:horn", '0', '0', 'wg_h + h'),
         '',
         '',
-        'Solid.ShellAdvanced "component1:horn", "Inside", "{:.2f}", "True"'.format(thickness),
+        'Solid.ShellAdvanced "component1:horn", "Inside", "{:s}", "True"'.format('thickness'),
     ]
     vbacode = line_break.join(vbacode)
     add_to_history(modeler, header, vbacode)
@@ -219,11 +219,29 @@ if __name__ == "__main__":
     my_mws.save(my_project_path, include_results=True)
     my_modeler = my_mws.modeler
 
+
+    def add_para(modeler, param_name, para_value):
+        header = f'store a parameter'
+        vbacode = f'MakeSureParameterExists("{param_name}", "{para_value}")'
+        res = add_to_history(modeler, header, vbacode)
+        return res
+
+
+    add_para(my_modeler, f'wl', 30)
+    add_para(my_modeler, f'zmax', 0)
+    add_para(my_modeler, f'wg_a', wg_a)
+    add_para(my_modeler, f'wg_b', wg_b)
+    add_para(my_modeler, f'wg_h', wg_h)
+    add_para(my_modeler, f'a', a)
+    add_para(my_modeler, f'b', b)
+    add_para(my_modeler, f'h', h)
+    add_para(my_modeler, f'thickness', thickness)
+
     set_units(my_modeler)
     set_freq_range(my_modeler, 6, 14)
     set_background(my_modeler)
 
-    modeling_horn_main(my_modeler, wg_a, wg_b, wg_h, a, b, h, thickness)
+    modeling_horn_main(my_modeler)
     zoom(my_modeler)
 
     my_mws.save()

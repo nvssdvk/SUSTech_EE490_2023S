@@ -309,4 +309,4 @@ if __name__ == "__main__":
     add_to_history(my_modeler, header, vbacode)
     time_end = time.time()
     print("Modeling the aperture, the total time is {:.1f} seconds".format(time_end - time_start), end='\r')
-    # my_mws.save()
+    my_mws.save()

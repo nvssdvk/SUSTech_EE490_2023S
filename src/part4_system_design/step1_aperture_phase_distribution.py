@@ -46,6 +46,8 @@ def phase_wrap(phi_arr):
     phi_arr -= num * 360
     phi_arr[phi_arr < -750] += 360 * 3
     phi_arr[phi_arr > -53] -= 360
+    # phi_arr[phi_arr < -360] += 360
+    # phi_arr[phi_arr > -53] -= 360
     return phi_arr
 
 
@@ -172,12 +174,12 @@ if __name__ == "__main__":
 
     # test
     wl = 3e8 / 10e9
-    theta = 0
-    h = 12.5 * wl
+    theta = 20
+    h = 9 * wl
 
     phase_array = phase_distribution(wl=wl,
                                      feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
                                      unit_num=21,
                                      beam_theta=theta,
                                      beam_phi=0)
-    phase_array = shrink(phase_array)
+    # phase_array = shrink(phase_array)
