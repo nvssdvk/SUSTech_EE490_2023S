@@ -5,26 +5,26 @@ import pandas as pd
 import numpy as np
 
 
-def find_best_h(wl, q, unit_num, unit_len=None):
+def find_best_h(wl, q, unit_num, qe=8.5, unit_len=None, theta=0):
     if unit_len is None:
         unit_len = wl / 2
     dx = dy = unit_len
-    x = np.arange(-unit_num / 2 * dx + wl / 4, unit_num / 2 * dx - wl / 4, dx)
-    y = np.arange(-unit_num / 2 * dy + wl / 4, unit_num / 2 * dy - wl / 4, dy)
+    x = np.arange(-unit_num / 2 * dx + unit_len / 2, unit_num / 2 * dx + unit_len / 2, dx)
+    y = np.arange(-unit_num / 2 * dy + unit_len / 2, unit_num / 2 * dy + unit_len / 2, dy)
     aperture_size = (unit_num * unit_len) ** 2
 
-    def cal_spillover():
+    def cal_spillover(x0):
         xx, yy = np.meshgrid(x, y)
-        r = np.sqrt(xx ** 2 + yy ** 2 + h ** 2)
-        temp = np.power(h / r, q * 2)
-        out = np.sum((wl / 2) ** 2 * temp * h / np.power(r, 3))
-        out = out / (2 * np.pi / (2 * q + 1))
+        r = np.sqrt((xx - x0) ** 2 + yy ** 2 + h ** 2)
+        temp = np.power(h, q * 2 + 1) / r ** (3 + 2 * q)
+        out = np.sum(unit_len ** 2 * temp)
+        out /= (2 * np.pi / (2 * q + 1))
         return out
 
-    def cal_illumination():
+    def cal_illumination(x0):
         xx, yy = np.meshgrid(x, y, indexing='ij')
-        r = np.sqrt(xx ** 2 + yy ** 2 + h ** 2)
-        amp = (h / r) ** (q + 0) / r
+        r = np.sqrt((xx - x0) ** 2 + yy ** 2 + h ** 2)
+        amp = h ** (q + qe) / r ** (1 + q + qe)
         out1 = np.sum(amp)
         out2 = np.sum(np.abs(amp) ** 2)
         out = (wl / 2) ** 2 * (out1 ** 2 / out2) / aperture_size
@@ -36,9 +36,10 @@ def find_best_h(wl, q, unit_num, unit_len=None):
     e_illu = np.zeros_like(h_list)
     amp_dist = np.zeros([list_num, len(x), len(y)])
     for h in h_list:
+        x0 = -h * np.tan(np.deg2rad(theta))
         id_h = np.where(h_list == h)[0].item()
-        e_spil[id_h] = cal_spillover()
-        e_illu[id_h], amp_dist[id_h] = cal_illumination()
+        e_spil[id_h] = cal_spillover(x0)
+        e_illu[id_h], amp_dist[id_h] = cal_illumination(x0)
     e_antenna = e_spil * e_illu
 
     plt.figure()
@@ -111,13 +112,34 @@ def find_best_q(file_path):
 if __name__ == "__main__":
     q = find_best_q(r"../../data/dataset/feed_horn_pattern.txt")
 
-    h = find_best_h(wl=3e8 / 10e9, q=q, unit_num=20)
+    h = find_best_h(wl=3e8 / 10e9, q=q, qe=7, unit_num=21, theta=10)
     '''
     Phase center (0, 0, 17.0448)
+    
+    theta = 0
     Best q is 8.5
-    Best Height of Feed: 9.5 wave length
+    Best Height of Feed: 12.5 wave length
     Efficiency:
-        Spillover: 0.906
-        Illumination: 0.776
-        Antenna: 0.703
+        Spillover: 0.829
+        Illumination: 0.799
+        Antenna: 0.663
+
+    
+    theta = 10
+    Best q is 8.5
+    Best Height of Feed: 11.5 wave length
+    Efficiency:
+        Spillover: 0.811
+        Illumination: 0.682
+        Antenna: 0.553
+        
+        
+    theta = 30
+    Best q is 8.5
+    Best Height of Feed: 6.0 wave length
+    Efficiency:
+        Spillover: 0.888
+        Illumination: 0.236
+        Antenna: 0.210
+
     '''

@@ -22,7 +22,8 @@ def cal_excitation(qf, qe, uv, fv, phase):
     local_v = fv - uv
     r = np.linalg.norm(local_v)
     theta_e = np.arccos(local_v[2] / r) if r != 0 else 0
-    theta_f = np.arccos(fv[2] / np.linalg.norm(fv)) if r != 0 else 0
+    theta_f = np.arccos(local_v[2] / r) if r != 0 else 0
+    # theta_f = np.arccos(fv[2] / np.linalg.norm(fv)) if r != 0 else 0
 
     a = np.cos(theta_f)
     temp_1 = np.power(a, qf * 2) / np.linalg.norm(uv - fv)
@@ -98,5 +99,5 @@ if __name__ == "__main__":
     #     aperture_pattern[i] = np.linalg.norm(aperture_pattern[i])
     # aperture_pattern = aperture_pattern.astype(float)
     aperture_pattern = np.abs(aperture_pattern)
-    # aperture_pattern = 10 * np.log10(aperture_pattern + 1e-15)
+    aperture_pattern = 10 * np.log10(aperture_pattern + 1e-15)
     plot_pattern(theta, (aperture_pattern))

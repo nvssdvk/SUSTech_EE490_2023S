@@ -170,19 +170,14 @@ if __name__ == "__main__":
     #                                  beam_theta=15,
     #                                  beam_phi=0)
 
-    # test1, beam_theta=0
+    # test
     wl = 3e8 / 10e9
-    phase_array = phase_distribution(wl=wl,
-                                     feed_position=[0, 0, 9.5 * wl],
-                                     unit_num=21,
-                                     beam_theta=0,
-                                     beam_phi=0)
+    theta = 0
+    h = 12.5 * wl
 
-    # test2, beam_theta=15
-    # wl = 3e8 / 10e9
-    # phase_array = phase_distribution(wl=wl,
-    #                                  feed_position=[-9.5 * wl * np.sin(15), 0, 9.5 * wl * np.sin(15)],
-    #                                  unit_num=21,
-    #                                  beam_theta=15,
-    #                                  beam_phi=0)
+    phase_array = phase_distribution(wl=wl,
+                                     feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
+                                     unit_num=21,
+                                     beam_theta=theta,
+                                     beam_phi=0)
     phase_array = shrink(phase_array)
