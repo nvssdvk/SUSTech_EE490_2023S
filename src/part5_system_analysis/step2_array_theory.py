@@ -11,27 +11,27 @@ def shrink(arr):
 
 
 def cal_element_pattern(qe, uv, bv, theta):
-    element_pattern = np.power(np.clip(np.cos(theta), 1e-10, None), qe) * np.exp(1j * k * np.dot(uv, bv))
-    # element_pattern = np.power(np.clip(np.cos(0), 1e-10, None), qe) * np.exp(1j * k * np.dot(uv, bv))
+    mask = np.logical_and(theta > -90, theta < 90)
+    element_pattern = np.zeros_like(theta, dtype=complex)
+    element_pattern[mask] = np.power(np.cos(theta[mask]), qe * 2) * np.exp(1j * k * np.dot(uv, bv))
+    # element_pattern = 10* np.log10(np.abs(element_pattern))
     return element_pattern
 
 
-def cal_excitation(qf, qe, uv, fv, phase, theta):
-    local_v = uv - fv
-    r = np.linalg.norm(local_v)
-    if r == 0:
-        theta_f = 0
-    else:
-        theta_f = np.arccos(local_v[2] / r)
+def cal_excitation(qf, qe, uv, fv, phase):
+    theta_f = np.arccos(fv[2] / np.linalg.norm(fv))
     local_v = fv - uv
     r = np.linalg.norm(local_v)
-    if r == 0:
-        theta_e = 0
-    else:
-        theta_e = np.arccos(local_v[2] / r)
-    temp_1 = np.power(np.clip(np.cos(theta_f), 1e-10, None), qf) / np.linalg.norm(uv - fv)
+    theta_e = np.arccos(local_v[2] / r) if r != 0 else 0
+
+    # temp_1 = np.power(np.clip(np.cos(theta_f), 1e-10, None), qf) / np.linalg.norm(uv - fv)
+    # temp_2 = np.exp(-1j * k * np.linalg.norm(uv - fv))
+    # temp_3 = np.power(np.clip(np.cos(theta_e), 1e-10, None), qe)
+    # temp_4 = np.exp(1j * phase)
+    a = np.cos(theta_f)
+    temp_1 = np.power(a, qf * 2) / np.linalg.norm(uv - fv)
     temp_2 = np.exp(-1j * k * np.linalg.norm(uv - fv))
-    temp_3 = np.power(np.clip(np.cos(theta_e), 1e-10, None), qe)
+    temp_3 = np.power(np.cos(theta_e), qe * 2)
     temp_4 = np.exp(1j * phase)
 
     illumination = temp_1 * temp_2 * temp_3 * temp_4
@@ -41,7 +41,8 @@ def cal_excitation(qf, qe, uv, fv, phase, theta):
 def plot_pattern(theta, pattern):
     file_path = r"../../data/dataset/reflectarray_pattern_10GHz.txt"
     data = pd.read_table(file_path, sep="\s+").values
-    sub_pattern = data[:, 2] - np.max(data[:, 2])
+    sub_pattern = data[:, 2]
+    # sub_pattern = data[:, 2] - np.max(data[:, 2])
     simulation_pattern = np.concatenate((sub_pattern[::-1], sub_pattern[1::])).reshape(-1, 1)
     plt.figure()
     plt.plot(theta, pattern, label="Array-Theory Method")
@@ -84,8 +85,7 @@ if __name__ == "__main__":
     for i in range(num):
         for j in range(num):
             pattern = cal_element_pattern(qe=qe, uv=uv[i, j], bv=bv, theta=np.deg2rad(theta))
-            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, phase=np.deg2rad(aperture_phase[i, j]),
-                                          theta=np.deg2rad(theta))
+            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, phase=np.deg2rad(aperture_phase[i, j]))
             aperture_pattern_array[i, j] = pattern * illumination
             pattern_array[i, j] = pattern
             pattern_array_0[i, j] = pattern[int(len(theta) / 2)]
@@ -95,5 +95,7 @@ if __name__ == "__main__":
     #     aperture_pattern[i] = np.linalg.norm(aperture_pattern[i])
     # aperture_pattern = aperture_pattern.astype(float)
     aperture_pattern = np.abs(aperture_pattern)
-    # aperture_pattern = 10 * np.log10(aperture_pattern)
+    # aperture_pattern[:177] = 0
+    # aperture_pattern[183:] = 0
+    aperture_pattern = 10 * np.log10(aperture_pattern - 1e-15)
     plot_pattern(theta, (aperture_pattern))
