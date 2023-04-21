@@ -30,7 +30,7 @@ def find_best_h(wl, q, unit_num, qe=8.5, unit_len=None, theta=0):
         out = (wl / 2) ** 2 * (out1 ** 2 / out2) / aperture_size
         return out, amp
 
-    h_list = np.arange(start=wl * 1, stop=wl * 30, step=wl / 2)
+    h_list = np.arange(start=wl * 1, stop=wl * 60, step=wl / 2)
     list_num = len(h_list)
     e_spil = np.zeros_like(h_list)
     e_illu = np.zeros_like(h_list)

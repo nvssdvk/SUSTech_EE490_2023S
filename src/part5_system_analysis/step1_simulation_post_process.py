@@ -6,7 +6,8 @@ import numpy as np
 
 
 def find_best_q(file_path, img_path, q_min, q_max, three_db_range):
-    data = pd.read_table(file_path, sep="\s+").values
+    df_data = pd.read_table(file_path, sep="\s+").values
+    data = df_data[1:]
     pattern = data[:, 2] - np.max(data[:, 2])
     ang = np.linspace(-180, 180, 361, dtype=int).reshape(-1, 1)
     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape(-1, 1)
@@ -54,9 +55,9 @@ def find_best_q(file_path, img_path, q_min, q_max, three_db_range):
 
 
 if __name__ == "__main__":
-    q = find_best_q(file_path=r"../../data/dataset/reflectarray_pattern_10GHz.txt",
+    q = find_best_q(file_path=r"../../data/dataset/reflectarray_pattern_10GHz_theta_0_h_125wl.txt",
                     img_path=r"../../img/system/q.png",
-                    q_min=1, q_max=500, three_db_range=3)
+                    q_min=1, q_max=500, three_db_range=5)
 
     qf = find_best_q(file_path=r"../../data/dataset/feed_horn_pattern.txt",
                      img_path=r"../../img/feed/q.png",
@@ -68,7 +69,7 @@ if __name__ == "__main__":
 
     '''
     Best q ** 2
-        element: 7
+        element: 7/a=14/h=20 0.5/a=14/h=11  0.5/a=7/h=11 2/a=7/h=2
         feed: 8.5
-        system: 185
+        system: 272.5
     '''

@@ -11,22 +11,25 @@ def shrink(arr):
 
 
 def cal_element_pattern(qe, uv, bv, theta):
-    mask = np.logical_and(theta > -90, theta < 90)
-    element_pattern = np.zeros_like(theta, dtype=complex)
-    element_pattern[mask] = np.power(np.cos(theta[mask]), qe * 2) * np.exp(1j * k * np.dot(uv, bv))
+    # mask = np.logical_and(theta > -90, theta < 90)
+    # element_pattern = np.zeros_like(theta, dtype=complex)
+    # element_pattern[mask] = np.power(np.cos(theta[mask]), qe * 2) * np.exp(1j * k * np.dot(uv, bv))
+    temp_1 = np.exp(1j * k * np.dot(uv, bv))
+    temp_2 = np.power(np.cos(theta), qe)
+    element_pattern = temp_1 * temp_2
     # element_pattern = 10 * np.log10(np.abs(element_pattern))
     return element_pattern
 
 
-def cal_excitation(qf, qe, uv, fv, phase):
+def cal_excitation(qf, qe, uv, fv, bv, phase):
     local_v = fv - uv
     r = np.linalg.norm(local_v)
+    theta_f = np.arccos(local_v[2] / r)
     theta_e = np.arccos(local_v[2] / r) if r != 0 else 0
-    theta_f = np.arccos(local_v[2] / r) if r != 0 else 0
     # theta_f = np.arccos(fv[2] / np.linalg.norm(fv)) if r != 0 else 0
 
     a = np.cos(theta_f)
-    temp_1 = np.power(a, qf * 2) / np.linalg.norm(uv - fv)
+    temp_1 = np.power(a, qf) / r
     temp_2 = np.exp(-1j * k * np.linalg.norm(uv - fv))
     temp_3 = np.power(np.cos(theta_e), qe * 2)
     temp_4 = np.exp(1j * phase)
@@ -37,18 +40,26 @@ def cal_excitation(qf, qe, uv, fv, phase):
 
 def plot_pattern(theta, pattern):
     file_path = r"../../data/dataset/reflectarray_pattern_10GHz.txt"
-    data = pd.read_table(file_path, sep="\s+").values
+    df_data = pd.read_table(file_path, sep="\s+").values
+    data = df_data[1:]
     sub_pattern = data[:, 2]
-    # sub_pattern = data[:, 2] - np.max(data[:, 2])
     simulation_pattern = np.concatenate((sub_pattern[::-1], sub_pattern[1::])).reshape(-1, 1)
+    simulation_pattern = simulation_pattern[90:271]
+    center = int(len(simulation_pattern) / 2)
+    three_db_id = 5
+    # sub_pattern = data[:, 2] - np.max(data[:, 2])
+    # pattern[:center - three_db_id] = -np.Inf
+    # pattern[center + three_db_id + 1:] = -np.Inf
+    pattern = pattern[90:271]
+    print(np.max(pattern))
     plt.figure(1)
-    plt.plot(theta, pattern, label="Array-Theory Method")
-    plt.plot(theta, simulation_pattern, label="Simulation")
+    plt.plot(theta[90:271], pattern, label="Array-Theory Method")
+    plt.plot(theta[90:271], simulation_pattern, label="Simulation")
     plt.legend()
     plt.show()
 
     plt.figure(2)
-    plt.plot(theta, simulation_pattern, label="Simulation")
+    plt.plot(theta[90:271], simulation_pattern, label="Simulation")
     plt.legend()
     plt.show()
 
@@ -60,7 +71,7 @@ if __name__ == "__main__":
     k = np.pi * 2 / wl
     d = wl / 2
     num = int(np.sqrt(data_aperture.shape[0]))
-    qe = 7
+    qe = 1
     qf = 8.5
 
     aperture_phase = np.zeros([num, num])
@@ -87,14 +98,15 @@ if __name__ == "__main__":
     for i in range(num):
         for j in range(num):
             pattern = cal_element_pattern(qe=qe, uv=uv[i, j], bv=bv, theta=np.deg2rad(theta))
-            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, phase=np.deg2rad(aperture_phase[i, j]))
+            illumination = cal_excitation(qe=qe, qf=qf, uv=uv[i, j], fv=fv, bv=bv,
+                                          phase=np.deg2rad(aperture_phase[i, j]))
             aperture_pattern_array[i, j] = pattern * illumination
             pattern_array[i, j] = pattern
             pattern_array_0[i, j] = pattern[int(len(theta) / 2)]
+            illumination /= np.max(np.abs(illumination))
             illumination_array[i, j] = illumination
             # aperture_pattern += pattern * np.abs(illumination)
-            # aperture_pattern += pattern * illumination
-            aperture_pattern += pattern
+            aperture_pattern += pattern * illumination
     # for i in range(len(aperture_pattern)):
     #     aperture_pattern[i] = np.linalg.norm(aperture_pattern[i])
     # aperture_pattern = aperture_pattern.astype(float)

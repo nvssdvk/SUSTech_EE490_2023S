@@ -42,12 +42,13 @@ def phase_unwrap(phi_wrap_arr):
 
 
 def phase_wrap(phi_arr):
-    num = int((np.max(phi_arr) + 360) / 360)
-    phi_arr -= num * 360
-    phi_arr[phi_arr < -750] += 360 * 3
-    phi_arr[phi_arr > -53] -= 360
-    # phi_arr[phi_arr < -360] += 360
-    # phi_arr[phi_arr > -53] -= 360
+    phase_min = -740
+    phase_max = -50
+    while True:
+        if np.all(phi_arr >= phase_min) and np.all(phi_arr <= phase_max):
+            break
+        phi_arr[phi_arr < phase_min] += 360
+        phi_arr[phi_arr > phase_max] -= 360
     return phi_arr
 
 
@@ -149,7 +150,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
 
 if __name__ == "__main__":
     # P69
-    # phase_array = phase_distribution(wl=3e8 / 32e9,
+    # phi_arr = phase_distribution(wl=3e8 / 32e9,
     #                                  feed_position=[0, 0, 170 / 1e3],
     #                                  unit_len=4.7 / 1e3,
     #                                  num=40,
@@ -157,7 +158,7 @@ if __name__ == "__main__":
     #                                  beam_phi=0)
 
     # P71
-    # phase_array = phase_distribution(wl=3e8 / 32e9,
+    # phi_arr = phase_distribution(wl=3e8 / 32e9,
     #                                  feed_position=[-85 / 1e3, 0, 147.22 / 1e3],
     #                                  unit_len=4.7 / 1e3,
     #                                  num=40,
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     #                                  beam_phi=0)
 
     # P337
-    # phase_array = phase_distribution(wl=3e8 / 14.25e9,
+    # phi_arr = phase_distribution(wl=3e8 / 14.25e9,
     #                                  feed_position=[-91.88 / 1e3, 0, 342.9 / 1e3],
     #                                  unit_len=10 / 1e3,
     #                                  num=36,
@@ -174,12 +175,12 @@ if __name__ == "__main__":
 
     # test
     wl = 3e8 / 10e9
-    theta = 20
-    h = 9 * wl
+    theta = 0
+    h = 12.5 * wl
 
-    phase_array = phase_distribution(wl=wl,
-                                     feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
-                                     unit_num=21,
-                                     beam_theta=theta,
-                                     beam_phi=0)
-    # phase_array = shrink(phase_array)
+    phi_arr = phase_distribution(wl=wl,
+                                 feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
+                                 unit_num=21,
+                                 beam_theta=theta,
+                                 beam_phi=0)
+    # phi_arr = shrink(phi_arr)
