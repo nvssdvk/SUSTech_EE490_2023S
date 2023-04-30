@@ -110,15 +110,6 @@ def find_best_q(file_path):
     return q_best
 
 
-def edge_taper(uv_c, uv_e, beam_vector, fv):
-    def cal_illumination(qf, unit_vector, fed_vector):
-        rf = np.linalg.norm(fed_vector - unit_vector)
-        theta_0 = np.arccos(fed_vector[2] / rf)
-        illumination = np.sign(np.cos(theta_0)) * (np.abs(np.cos(theta_0))) ** qf
-        illumination /= rf
-        return illumination
-
-
 if __name__ == "__main__":
     q = find_best_q(r"../../data/dataset/feed_horn_pattern_30.txt")
 
