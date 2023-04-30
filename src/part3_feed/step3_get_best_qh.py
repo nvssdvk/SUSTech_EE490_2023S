@@ -30,7 +30,7 @@ def find_best_h(wl, q, unit_num, qe=8.5, unit_len=None, theta=0):
         out = (wl / 2) ** 2 * (out1 ** 2 / out2) / aperture_size
         return out, amp
 
-    h_list = np.arange(start=wl * 1, stop=wl * 60, step=wl / 2)
+    h_list = np.arange(start=wl * 3, stop=wl * 60, step=wl / 2)
     list_num = len(h_list)
     e_spil = np.zeros_like(h_list)
     e_illu = np.zeros_like(h_list)
@@ -63,7 +63,8 @@ def find_best_h(wl, q, unit_num, qe=8.5, unit_len=None, theta=0):
 
 
 def find_best_q(file_path):
-    data = pd.read_table(file_path, sep="\s+").values
+    df_data = pd.read_table(file_path, sep="\s+").values
+    data = df_data[1:]
     pattern = data[:, 2] - np.max(data[:, 2])
     ang = np.linspace(-180, 180, 361, dtype=int).reshape(-1, 1)
     mag = np.concatenate((pattern[::-1], pattern[1::])).reshape(-1, 1)
@@ -109,10 +110,20 @@ def find_best_q(file_path):
     return q_best
 
 
-if __name__ == "__main__":
-    q = find_best_q(r"../../data/dataset/feed_horn_pattern.txt")
+def edge_taper(uv_c, uv_e, beam_vector, fv):
+    def cal_illumination(qf, unit_vector, fed_vector):
+        rf = np.linalg.norm(fed_vector - unit_vector)
+        theta_0 = np.arccos(fed_vector[2] / rf)
+        illumination = np.sign(np.cos(theta_0)) * (np.abs(np.cos(theta_0))) ** qf
+        illumination /= rf
+        return illumination
 
-    h = find_best_h(wl=3e8 / 10e9, q=q, qe=7, unit_num=21, theta=20)
+
+if __name__ == "__main__":
+    q = find_best_q(r"../../data/dataset/feed_horn_pattern_30.txt")
+
+    h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=30)
+    # h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=0)
     '''
     Phase center (0, 0, 17.0448)
     
@@ -123,26 +134,9 @@ if __name__ == "__main__":
         Spillover: 0.829
         Illumination: 0.799
         Antenna: 0.663
-
-    
-    theta = 10
-    Best q is 8.5
-    Best Height of Feed: 11.5 wave length
-    Efficiency:
-        Spillover: 0.811
-        Illumination: 0.682
-        Antenna: 0.553
-    
-    theta = 20
-    Best q is 8.5
-    Best Height of Feed: 9.0 wave length
-    Efficiency:
-        Spillover: 0.800
-        Illumination: 0.444
-        Antenna: 0.355
-        
+       
     theta = 30
-    Best q is 8.5
+    Best q is 7
     Best Height of Feed: 6.0 wave length
     Efficiency:
         Spillover: 0.888

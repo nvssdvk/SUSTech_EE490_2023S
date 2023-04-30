@@ -42,6 +42,9 @@ def phase_unwrap(phi_wrap_arr):
 
 
 def phase_wrap(phi_arr):
+    data_max = np.max(phi_arr)
+    num_360 = data_max // 360
+    phi_arr -= 2 * np.pi * (num_360 + 1)
     phase_min = -740
     phase_max = -50
     while True:
@@ -82,8 +85,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     yspd = yy - feed_position[1]
     z = feed_position[2]
     phi_arr_spd = -k * np.sqrt(xspd ** 2 + yspd ** 2 + z ** 2)
-    phi_arr_spd = phi_arr_spd * 180 / np.pi
-    plt.imshow((shrink(phi_arr_spd)), cmap='hot', interpolation='nearest')
+    plt.imshow((shrink(np.rad2deg(phi_arr_spd))), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [part1_unit_design number]")
     plt.ylabel("y-axis [part1_unit_design number]")
@@ -93,8 +95,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     cos_phi = np.cos(beam_phi)
     sin_phi = np.sin(beam_phi)
     phi_arr_pp = -k * (xx * cos_phi + yy * sin_phi) * np.sin(beam_theta)
-    phi_arr_pp = phi_arr_pp * 180 / np.pi
-    plt.imshow((shrink(phi_arr_pp)), cmap='hot', interpolation='nearest')
+    plt.imshow((shrink(np.rad2deg(phi_arr_pp))), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [part1_unit_design number]")
     plt.ylabel("y-axis [part1_unit_design number]")
@@ -102,7 +103,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
 
     plt.subplot(223)
     phi_arr = -phi_arr_spd + phi_arr_pp
-    # phi_arr = shrink(phi_arr)
+    phi_arr = np.rad2deg(phi_arr)
     phi_arr = phase_wrap(phi_arr)
     plt.imshow(shrink(phi_arr), cmap='hot', interpolation='nearest')
     plt.colorbar()
@@ -121,9 +122,7 @@ def phase_distribution(wl=3e8 / 32e9, feed_position=None, unit_len=None, unit_nu
     z = feed_position[2]
     cos_phi, sin_phi = np.cos(beam_phi), np.sin(beam_phi)
     phi_arr_con = k * np.sqrt(xspd ** 2 + yspd ** 2 + z ** 2) - k * (xx * cos_phi + yy * sin_phi) * np.sin(beam_theta)
-    phi_arr_con = phi_arr_con * 180 / np.pi
-    phi_arr_con = shrink(phi_arr_con)
-    plt.imshow(phi_arr_con, cmap='hot', interpolation='nearest')
+    plt.imshow(shrink(np.rad2deg(phi_arr_con)), cmap='hot', interpolation='nearest')
     plt.colorbar()
     plt.xlabel("x-axis [mm]")
     plt.ylabel("y-axis [mm]")
@@ -175,12 +174,13 @@ if __name__ == "__main__":
 
     # test
     wl = 3e8 / 10e9
-    theta = 0
-    h = 12.5 * wl
+    theta = 30
+    h = 6 * wl
+    x0 = -h * np.tan(np.deg2rad(theta))
 
     phi_arr = phase_distribution(wl=wl,
                                  feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
                                  unit_num=21,
-                                 beam_theta=theta,
+                                 beam_theta=40,
                                  beam_phi=0)
-    # phi_arr = shrink(phi_arr)
+
