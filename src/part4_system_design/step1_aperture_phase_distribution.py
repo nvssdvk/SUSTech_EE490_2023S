@@ -174,13 +174,13 @@ if __name__ == "__main__":
 
     # test
     wl = 3e8 / 10e9
-    theta = 30
-    h = 6 * wl
+    theta = 10
+    h = 8 * wl
     x0 = -h * np.tan(np.deg2rad(theta))
 
     phi_arr = phase_distribution(wl=wl,
                                  feed_position=[-h * np.tan(np.deg2rad(theta)), 0, h],
                                  unit_num=21,
-                                 beam_theta=40,
+                                 beam_theta=15,
                                  beam_phi=0)
 

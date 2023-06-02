@@ -24,7 +24,7 @@ def edge_taper(theta_fed, hf, qf):
     r_s = np.sqrt((d_ra / 2) ** 2 + r_c ** 2)
 
     theta_u = np.arccos(hf / r_u) - theta_fed
-    theta_l = np.arccos(hf / r_l) - theta_fed
+    theta_l = np.arccos(hf / r_l) + theta_fed
     theta_s = np.arctan(d_ra / (2 * r_c))
 
     i_max = cal_illumination(q=qf, theta=theta_fed, r=r_fp)
@@ -43,8 +43,8 @@ if __name__ == "__main__":
     k = np.pi * 2 / wl
     unit_len = wl / 2
     unit_num = 21
-    qf = 7
-    theta_fed = np.deg2rad(30)
+    qf = 8.5
+    theta_fed = np.deg2rad(0)
     hf = np.arange(wl, wl * 30, wl/2).reshape(-1)
     theta_beam = np.deg2rad(0)
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     plt.title(r"Edge Taper with qf={:.1f}, $\theta$={:.1f}".format(qf, np.rad2deg(theta_fed)))
     plt.legend()
 
-    x_value = 3
+    x_value = 12.5
     y_value = et_u_arr[np.where(x == x_value)]
     plt.annotate(f"y={y_value}", xy=(x_value, y_value), xytext=(x_value + 0.5, y_value + 1),
                  arrowprops=dict(arrowstyle='->'))

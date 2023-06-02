@@ -1,10 +1,7 @@
 from libsvm.svmutil import *
-
+from libsvm.svm import *
 import pandas as pd
 import numpy as np
-import os
-
-# For plotting
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -28,6 +25,7 @@ def data_loader(data_dir, mode):
         data = normalize(data)
         return data, target
 
+
 def plot_pred(preds, targets):
     plt.figure()
     plt.scatter(targets, preds, c='r', alpha=0.5, label="Predicted data")
@@ -35,29 +33,22 @@ def plot_pred(preds, targets):
     plt.xlim(-900, 180)
     plt.ylim(-900, 180)
     plt.xlabel('Phase by CST')
-    plt.ylabel('Phase by M2LP')
+    plt.ylabel('Phase by SVR')
     plt.title('Prediction Error Curve')
     plt.legend(loc='best')
     plt.savefig(r"../../img/nn_model/svr_prediction_error.png")
     plt.show()
 
+
 if __name__ == "__main__":
-    config = {
-        # model
-        'hype_para': '-s 3 -t 2 -c 1 -g 0.1',
-        # path
-        'model_path': r'./models/model.pth',
-        'tr_path': r'../../data/dataset/tr_set_unwrap.csv',
-        've_path': r'../../data/dataset/ve_set_unwrap.csv',
-        'tt_path': r'../../data/dataset/tt_set.csv'
-    }
+    data_tr, target_tr = data_loader(r'../../data/dataset/tr_set_unwrap.csv', 'train')
+    data_ve, target_ve = data_loader(r'../../data/dataset/ve_set_unwrap.csv', 'verify')
+    data_tt = data_loader(r'../../data/dataset/tt_set.csv', 'test')
 
-    data_tr, target_tr = data_loader(config['tr_path'], 'train')
-    data_ve, target_ve = data_loader(config['ve_path'], 'verify')
-    data_tt = data_loader(config['tt_path'], 'test')
-
-    model = svm_train(target_tr, data_tr, config['hype_para'])
-
-    p_label, p_acc, p_val = svm_predict([0, 0], data_ve, model)
+    model = svm_train(target_tr, data_tr, '-s 3 -t 2 -c 10 -g 0.1 -p 0.001')
+    p_label, p_acc, p_val = svm_predict(target_ve, data_ve, model)
 
     plot_pred(p_label, target_ve)
+    error_arr = p_label - target_ve
+    avg_loss = np.sum(np.abs(error_arr)) / len(error_arr)
+    print('MAE loss = {:.2f}'.format(avg_loss))

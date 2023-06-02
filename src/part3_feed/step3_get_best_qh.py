@@ -31,6 +31,7 @@ def find_best_h(wl, q, unit_num, qe=8.5, unit_len=None, theta=0):
         return out, amp
 
     h_list = np.arange(start=wl * 3, stop=wl * 60, step=wl / 2)
+    # h_list = np.asarray([wl * 8.0])
     list_num = len(h_list)
     e_spil = np.zeros_like(h_list)
     e_illu = np.zeros_like(h_list)
@@ -113,8 +114,8 @@ def find_best_q(file_path):
 if __name__ == "__main__":
     q = find_best_q(r"../../data/dataset/feed_horn_pattern_30.txt")
 
-    h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=30)
-    # h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=0)
+    # h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=10)
+    h = find_best_h(wl=3e8 / 10e9, q=q, qe=0, unit_num=21, theta=10)
     '''
     Phase center (0, 0, 17.0448)
     
